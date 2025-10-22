@@ -227,26 +227,26 @@
                 persistence: 0.8,
                 diffusion: 0.35,
                 sound: {
-                    waveform: 'sine',
-                    baseFreqMultiplier: 3.0,
-                    harmonics: 2,
-                    attack: 0.005,  // Quick attack like water drops
+                    waveform: 'triangle',
+                    baseFreqMultiplier: 2.5,
+                    harmonics: 3,
+                    attack: 0.001,  // Instant like bamboo strike
                     filterType: 'bandpass',
-                    filterFreq: 2000,
-                    filterQ: 5,
-                    reverbMix: 0.9,  // More reverb for space
-                    detune: 8,
-                    // WATER DROPLETS - percussive, rhythmic, nature sounds
-                    useWaterDrops: true,
-                    dropCount: 20,  // Many drops
-                    dropIntensity: 0.8,  // Loud and clear
-                    usePercussion: true,  // Sharp percussive hits
-                    percussionRate: 15,
-                    percussionDecay: 0.1,  // Very fast decay
-                    useFreqSweep: true,  // Descending pitch like water
-                    sweepAmount: 0.6,  // Strong downward sweep
-                    useBrightness: true,  // Extra high frequencies
-                    brightnessFreq: 8.0  // Bright sparkle
+                    filterFreq: 1800,
+                    filterQ: 6,
+                    reverbMix: 0.95,  // Huge reverb for forest atmosphere
+                    detune: 3,
+                    // BAMBOO WIND CHIMES - hollow resonant tubes with multiple pitches
+                    useBamboo: true,
+                    bambooTubes: [1.0, 1.33, 1.5, 2.0, 2.67, 3.0, 4.0],  // Pentatonic-ish tuning
+                    bambooDecay: 0.4,  // Long resonance
+                    bambooVolume: 0.9,
+                    useHollowResonance: true,  // Hollow tube effect
+                    resonanceFreq: 0.75,  // Sub-frequency for hollow sound
+                    useWindNoise: true,  // Air rushing through bamboo
+                    windIntensity: 0.4,
+                    useMetallicShimmer: true,  // High metallic overtones
+                    shimmerCount: 8
                 }
             },
             {
@@ -256,28 +256,25 @@
                 diffusion: 0.3,
                 sound: {
                     waveform: 'sine',
-                    baseFreqMultiplier: 2.5,  // Higher pitch
-                    harmonics: 0,  // No traditional harmonics
-                    attack: 0.001,  // Instant attack like pluck
-                    filterType: 'bandpass',
-                    filterFreq: 3500,
-                    filterQ: 6,  // More focused
-                    reverbMix: 0.95,
+                    baseFreqMultiplier: 4.0,  // Very high pitch
+                    harmonics: 1,
+                    attack: 0.0005,  // Nearly instant like ice cracking
+                    filterType: 'highpass',
+                    filterFreq: 3000,  // Only high frequencies
+                    filterQ: 2,
+                    reverbMix: 0.98,  // Maximum reverb for frozen space
                     detune: 0,
-                    // MUSIC BOX / GLASS HARMONICA - plucked metallic resonance (LOUDER)
-                    useMusicBox: true,
-                    musicBoxNotes: [1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0],
-                    pluckDecay: 0.25,  // Slightly faster for more definition
-                    musicBoxVolume: 1.2,  // BOOST volume
-                    useMetallicRing: true,
-                    ringRatios: [2.3, 3.7, 5.2, 7.1],
-                    ringVolume: 0.5,  // BOOST ring volume
-                    useRandomPlucks: true,
-                    pluckDensity: 18,  // MORE random plucks
-                    randomPluckVolume: 0.8,  // LOUDER random plucks
-                    useBowedGlass: true,
-                    glassFreqShift: 1.5,  // More obvious pitch shift
-                    glassVolume: 0.6  // BOOST glass volume
+                    // ICE CRYSTALS - brittle, crackling, frozen glass texture
+                    useIceCrackle: true,
+                    iceCrackleCount: 25,  // Many small cracks
+                    crackleIntensity: 0.9,
+                    crackleSpeed: 0.02,  // Very fast pops
+                    useFrozenResonance: true,  // High pitched resonance
+                    frozenPitches: [8.0, 10.0, 12.0, 15.0, 18.0],  // Very high harmonics
+                    useGlassShatter: true,  // Scattered glass sounds
+                    shatterDensity: 12,
+                    useHighShimmer: true,  // Ultra-high frequency sparkle
+                    shimmerFreq: 12.0
                 }
             },
             {
@@ -287,22 +284,27 @@
                 diffusion: 0.5,
                 sound: {
                     waveform: 'sawtooth',
-                    baseFreqMultiplier: 1.0,
-                    harmonics: 8,
-                    attack: 0.03,
-                    filterType: 'bandpass',
-                    filterFreq: 800,
-                    filterQ: 8,
-                    reverbMix: 0.3,
-                    detune: 50,  // Heavy detuning
-                    // AGGRESSIVE PULSE - energetic, distorted, intense
-                    useChorus: true,  // Multiple detuned voices for thickness
-                    chorusVoices: 6,  // Many layers
-                    chorusSpread: 60,  // Wide detuning
-                    usePulse: true,  // Rhythmic pulse
-                    pulseRate: 12,  // Fast aggressive pulse
-                    useDistortion: true,  // Add grit and aggression
-                    distortionAmount: 0.7
+                    baseFreqMultiplier: 0.5,  // Low, heavy frequency
+                    harmonics: 12,  // Many harsh harmonics
+                    attack: 0.005,
+                    filterType: 'lowpass',
+                    filterFreq: 600,
+                    filterQ: 4,
+                    reverbMix: 0.4,
+                    detune: 40,
+                    // INDUSTRIAL MACHINERY - grinding metal, mechanical hits, heavy distortion
+                    useMetalGrind: true,
+                    grindIntensity: 1.2,
+                    grindModulation: 8.0,  // Fast modulation for grinding texture
+                    useHeavyDistortion: true,
+                    distortionDrive: 6.0,  // Heavy overdrive
+                    useMetalHits: true,  // Percussive metal impacts
+                    metalHitCount: 15,
+                    metalHitVolume: 0.8,
+                    useGrindNoise: true,  // Harsh noise layer
+                    grindNoiseRatio: 1.5,
+                    useLowRumble: true,  // Deep machinery rumble
+                    rumbleFreq: 0.3
                 }
             }
         ];
@@ -912,198 +914,259 @@
                 rumbleOsc.connect(rumbleEnv);
             }
             
-            // WATER DROPLETS - percussive hits with pitch sweep (green)
-            let waterDropNodes = [];
-            if (sound.useWaterDrops) {
-                const numDrops = sound.dropCount || 15;
-                for (let i = 0; i < numDrops; i++) {
-                    const dropDelay = Math.random() * duration * 0.85;
-                    const dropOsc = audioContext.createOscillator();
-                    dropOsc.type = 'sine';
+            // BAMBOO WIND CHIMES - hollow resonant tubes (green)
+            let bambooNodes = [];
+            if (sound.useBamboo && sound.bambooTubes) {
+                const bambooVol = sound.bambooVolume || 0.7;
+                sound.bambooTubes.forEach((ratio, i) => {
+                    const bambooOsc = audioContext.createOscillator();
+                    bambooOsc.type = 'triangle';  // Hollow sound
+                    bambooOsc.frequency.value = baseFreq * ratio;
                     
-                    // Descending pitch sweep like water droplet
-                    const startFreq = baseFreq * (2 + Math.random() * 3);
-                    const endFreq = startFreq * (sound.useFreqSweep ? (1 - sound.sweepAmount) : 0.8);
-                    dropOsc.frequency.value = startFreq;
-                    dropOsc.frequency.setValueAtTime(startFreq, now + dropDelay);
-                    dropOsc.frequency.exponentialRampToValueAtTime(endFreq, now + dropDelay + 0.08);
+                    // Quick strike, long resonance
+                    const bambooEnv = audioContext.createGain();
+                    bambooEnv.gain.value = 0;
+                    const bambooAttackVol = baseVolume * bambooVol / (i * 0.3 + 1);
+                    bambooEnv.gain.linearRampToValueAtTime(bambooAttackVol, now + 0.001);
+                    bambooEnv.gain.exponentialRampToValueAtTime(0.001, now + duration * sound.bambooDecay);
                     
-                    const dropEnv = audioContext.createGain();
-                    dropEnv.gain.value = 0;
-                    const dropVol = baseVolume * sound.dropIntensity * (0.5 + Math.random() * 0.5);
-                    dropEnv.gain.setValueAtTime(0, now + dropDelay);
-                    dropEnv.gain.linearRampToValueAtTime(dropVol, now + dropDelay + 0.002);
-                    dropEnv.gain.exponentialRampToValueAtTime(0.001, now + dropDelay + 0.1);
+                    bambooOsc.connect(bambooEnv);
+                    bambooNodes.push({ osc: bambooOsc, env: bambooEnv });
+                });
+            }
+            
+            // HOLLOW RESONANCE - sub-frequency for bamboo tube effect (green)
+            let hollowResonance = null;
+            let hollowEnv = null;
+            if (sound.useHollowResonance) {
+                hollowResonance = audioContext.createOscillator();
+                hollowResonance.type = 'sine';
+                hollowResonance.frequency.value = baseFreq * sound.resonanceFreq;
+                
+                hollowEnv = audioContext.createGain();
+                hollowEnv.gain.value = 0;
+                hollowEnv.gain.linearRampToValueAtTime(baseVolume * 0.4, now + 0.005);
+                hollowEnv.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.5);
+                
+                hollowResonance.connect(hollowEnv);
+            }
+            
+            // WIND NOISE - air rushing through bamboo (green)
+            let windNoise = null;
+            let windEnv = null;
+            if (sound.useWindNoise) {
+                const windBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.2, audioContext.sampleRate);
+                const windData = windBuffer.getChannelData(0);
+                for (let i = 0; i < windData.length; i++) {
+                    windData[i] = (Math.random() * 2 - 1) * 0.5;
+                }
+                windNoise = audioContext.createBufferSource();
+                windNoise.buffer = windBuffer;
+                windNoise.loop = true;
+                
+                const windFilter = audioContext.createBiquadFilter();
+                windFilter.type = 'highpass';
+                windFilter.frequency.value = 2000;
+                
+                windEnv = audioContext.createGain();
+                windEnv.gain.value = 0;
+                windEnv.gain.linearRampToValueAtTime(baseVolume * sound.windIntensity, now + 0.02);
+                windEnv.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.3);
+                
+                windNoise.connect(windFilter);
+                windFilter.connect(windEnv);
+            }
+            
+            // METALLIC SHIMMER - high overtones (green)
+            let shimmerNodes = [];
+            if (sound.useMetallicShimmer) {
+                const numShimmers = sound.shimmerCount || 6;
+                for (let i = 0; i < numShimmers; i++) {
+                    const shimmerDelay = Math.random() * duration * 0.7;
+                    const shimmerOsc = audioContext.createOscillator();
+                    shimmerOsc.type = 'sine';
+                    shimmerOsc.frequency.value = baseFreq * (5 + Math.random() * 8);
                     
-                    dropOsc.connect(dropEnv);
-                    waterDropNodes.push({ osc: dropOsc, env: dropEnv });
+                    const shimmerEnv = audioContext.createGain();
+                    shimmerEnv.gain.value = 0;
+                    shimmerEnv.gain.setValueAtTime(0, now + shimmerDelay);
+                    shimmerEnv.gain.linearRampToValueAtTime(baseVolume * 0.15, now + shimmerDelay + 0.005);
+                    shimmerEnv.gain.exponentialRampToValueAtTime(0.001, now + shimmerDelay + 0.2);
+                    
+                    shimmerOsc.connect(shimmerEnv);
+                    shimmerNodes.push({ osc: shimmerOsc, env: shimmerEnv });
                 }
             }
             
-            // PERCUSSION HITS - sharp attacks (green)
-            let percussionNodes = [];
-            if (sound.usePercussion) {
-                const numHits = sound.percussionRate || 10;
+            // ICE CRACKLE - brittle, fast pops (pink)
+            let iceCrackleNodes = [];
+            if (sound.useIceCrackle) {
+                const numCrackles = sound.iceCrackleCount || 20;
+                for (let i = 0; i < numCrackles; i++) {
+                    const crackleDelay = Math.random() * duration * 0.95;
+                    const crackleOsc = audioContext.createOscillator();
+                    crackleOsc.type = 'square';  // Harsh brittle sound
+                    crackleOsc.frequency.value = baseFreq * (8 + Math.random() * 12);
+                    
+                    const crackleEnv = audioContext.createGain();
+                    crackleEnv.gain.value = 0;
+                    const crackleVol = baseVolume * sound.crackleIntensity * (0.4 + Math.random() * 0.6);
+                    crackleEnv.gain.setValueAtTime(0, now + crackleDelay);
+                    crackleEnv.gain.linearRampToValueAtTime(crackleVol, now + crackleDelay + sound.crackleSpeed);
+                    crackleEnv.gain.exponentialRampToValueAtTime(0.001, now + crackleDelay + sound.crackleSpeed + 0.03);
+                    
+                    crackleOsc.connect(crackleEnv);
+                    iceCrackleNodes.push({ osc: crackleOsc, env: crackleEnv });
+                }
+            }
+            
+            // FROZEN RESONANCE - very high pitched layers (pink)
+            let frozenResonanceNodes = [];
+            if (sound.useFrozenResonance && sound.frozenPitches) {
+                sound.frozenPitches.forEach((ratio, i) => {
+                    const frozenOsc = audioContext.createOscillator();
+                    frozenOsc.type = 'sine';
+                    frozenOsc.frequency.value = baseFreq * ratio;
+                    
+                    const frozenEnv = audioContext.createGain();
+                    frozenEnv.gain.value = 0;
+                    const frozenVol = baseVolume * 0.3 / (i + 1);
+                    frozenEnv.gain.linearRampToValueAtTime(frozenVol, now + 0.001);
+                    frozenEnv.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.6);
+                    
+                    frozenOsc.connect(frozenEnv);
+                    frozenResonanceNodes.push({ osc: frozenOsc, env: frozenEnv });
+                });
+            }
+            
+            // GLASS SHATTER - scattered high frequency impacts (pink)
+            let glassShatterNodes = [];
+            if (sound.useGlassShatter) {
+                const numShatters = sound.shatterDensity || 10;
+                for (let i = 0; i < numShatters; i++) {
+                    const shatterDelay = Math.random() * duration * 0.8;
+                    const shatterOsc = audioContext.createOscillator();
+                    shatterOsc.type = 'sine';
+                    shatterOsc.frequency.value = baseFreq * (10 + Math.random() * 15);
+                    
+                    const shatterEnv = audioContext.createGain();
+                    shatterEnv.gain.value = 0;
+                    shatterEnv.gain.setValueAtTime(0, now + shatterDelay);
+                    shatterEnv.gain.linearRampToValueAtTime(baseVolume * 0.4, now + shatterDelay + 0.001);
+                    shatterEnv.gain.exponentialRampToValueAtTime(0.001, now + shatterDelay + 0.05);
+                    
+                    shatterOsc.connect(shatterEnv);
+                    glassShatterNodes.push({ osc: shatterOsc, env: shatterEnv });
+                }
+            }
+            
+            // HIGH SHIMMER - ultra-high frequency sparkle (pink)
+            let highShimmer = null;
+            let highShimmerEnv = null;
+            if (sound.useHighShimmer) {
+                highShimmer = audioContext.createOscillator();
+                highShimmer.type = 'sine';
+                highShimmer.frequency.value = baseFreq * sound.shimmerFreq;
+                
+                highShimmerEnv = audioContext.createGain();
+                highShimmerEnv.gain.value = 0;
+                highShimmerEnv.gain.linearRampToValueAtTime(baseVolume * 0.25, now + 0.005);
+                highShimmerEnv.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.4);
+                
+                highShimmer.connect(highShimmerEnv);
+            }
+            
+            // METAL GRIND - modulated grinding texture (red)
+            let metalGrindOsc = null;
+            let metalGrindEnv = null;
+            if (sound.useMetalGrind) {
+                metalGrindOsc = audioContext.createOscillator();
+                metalGrindOsc.type = 'sawtooth';
+                metalGrindOsc.frequency.value = baseFreq * 0.5;
+                
+                // Fast modulation for grinding texture
+                const grindMod = audioContext.createOscillator();
+                grindMod.frequency.value = sound.grindModulation;
+                const grindModGain = audioContext.createGain();
+                grindModGain.gain.value = baseFreq * 0.3;
+                grindMod.connect(grindModGain);
+                grindModGain.connect(metalGrindOsc.frequency);
+                grindMod.start(now);
+                grindMod.stop(now + duration);
+                
+                metalGrindEnv = audioContext.createGain();
+                metalGrindEnv.gain.value = 0;
+                const grindVol = baseVolume * sound.grindIntensity;
+                metalGrindEnv.gain.linearRampToValueAtTime(grindVol, now + 0.01);
+                metalGrindEnv.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                
+                metalGrindOsc.connect(metalGrindEnv);
+            }
+            
+            // METAL HITS - percussive industrial impacts (red)
+            let metalHitNodes = [];
+            if (sound.useMetalHits) {
+                const numHits = sound.metalHitCount || 12;
                 for (let i = 0; i < numHits; i++) {
                     const hitDelay = Math.random() * duration * 0.9;
                     const hitOsc = audioContext.createOscillator();
-                    hitOsc.type = 'triangle';
-                    hitOsc.frequency.value = baseFreq * (1.5 + Math.random() * 2);
+                    hitOsc.type = 'square';
+                    hitOsc.frequency.value = baseFreq * (0.5 + Math.random() * 1.5);
                     
                     const hitEnv = audioContext.createGain();
                     hitEnv.gain.value = 0;
-                    const hitVol = baseVolume * 0.7 * Math.random();
+                    const hitVol = baseVolume * sound.metalHitVolume * (0.6 + Math.random() * 0.4);
                     hitEnv.gain.setValueAtTime(0, now + hitDelay);
-                    hitEnv.gain.linearRampToValueAtTime(hitVol, now + hitDelay + 0.001);
-                    hitEnv.gain.exponentialRampToValueAtTime(0.001, now + hitDelay + sound.percussionDecay);
+                    hitEnv.gain.linearRampToValueAtTime(hitVol, now + hitDelay + 0.002);
+                    hitEnv.gain.exponentialRampToValueAtTime(0.001, now + hitDelay + 0.08);
                     
                     hitOsc.connect(hitEnv);
-                    percussionNodes.push({ osc: hitOsc, env: hitEnv });
+                    metalHitNodes.push({ osc: hitOsc, env: hitEnv });
                 }
             }
             
-            // BRIGHTNESS LAYER - high frequency sparkle (green)
-            let brightnessOsc = null;
-            let brightnessEnv = null;
-            if (sound.useBrightness) {
-                brightnessOsc = audioContext.createOscillator();
-                brightnessOsc.type = 'sine';
-                brightnessOsc.frequency.value = baseFreq * sound.brightnessFreq;
-                
-                brightnessEnv = audioContext.createGain();
-                brightnessEnv.gain.value = 0;
-                brightnessEnv.gain.linearRampToValueAtTime(baseVolume * 0.3, now + 0.01);
-                brightnessEnv.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.4);
-                
-                brightnessOsc.connect(brightnessEnv);
-            }
-            
-            // MUSIC BOX PLUCKS - multiple tines playing (pink)
-            let musicBoxOscs = [];
-            if (sound.useMusicBox && sound.musicBoxNotes) {
-                const musicBoxVol = sound.musicBoxVolume || 0.4;
-                sound.musicBoxNotes.forEach((ratio, i) => {
-                    const tineOsc = audioContext.createOscillator();
-                    tineOsc.type = 'sine';
-                    tineOsc.frequency.value = baseFreq * ratio;
-                    
-                    // Quick pluck envelope
-                    const tineEnv = audioContext.createGain();
-                    tineEnv.gain.value = 0;
-                    const tineVol = baseVolume * musicBoxVol / Math.sqrt(i + 1);
-                    tineEnv.gain.linearRampToValueAtTime(tineVol, now + 0.001);
-                    tineEnv.gain.exponentialRampToValueAtTime(0.001, now + duration * sound.pluckDecay);
-                    
-                    tineOsc.connect(tineEnv);
-                    musicBoxOscs.push({ osc: tineOsc, env: tineEnv });
-                });
-            }
-            
-            // METALLIC RING - inharmonic overtones like struck metal (pink)
-            let metallicRingOscs = [];
-            if (sound.useMetallicRing && sound.ringRatios) {
-                const ringBaseVol = sound.ringVolume || 0.15;
-                sound.ringRatios.forEach((ratio, i) => {
-                    const ringOsc = audioContext.createOscillator();
-                    ringOsc.type = 'sine';
-                    ringOsc.frequency.value = baseFreq * ratio;
-                    
-                    const ringEnv = audioContext.createGain();
-                    ringEnv.gain.value = 0;
-                    const ringVol = baseVolume * ringBaseVol / (i + 1);
-                    ringEnv.gain.linearRampToValueAtTime(ringVol, now + 0.002);
-                    ringEnv.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.4);
-                    
-                    ringOsc.connect(ringEnv);
-                    metallicRingOscs.push({ osc: ringOsc, env: ringEnv });
-                });
-            }
-            
-            // RANDOM MUSIC BOX PLUCKS scattered through time (pink)
-            let randomPlucks = [];
-            if (sound.useRandomPlucks) {
-                const randomPluckVol = sound.randomPluckVolume || 0.3;
-                for (let i = 0; i < sound.pluckDensity; i++) {
-                    const pluckDelay = Math.random() * duration * 0.8;
-                    const noteChoice = sound.musicBoxNotes[Math.floor(Math.random() * sound.musicBoxNotes.length)];
-                    
-                    const pluckOsc = audioContext.createOscillator();
-                    pluckOsc.type = 'sine';
-                    pluckOsc.frequency.value = baseFreq * noteChoice;
-                    
-                    const pluckEnv = audioContext.createGain();
-                    pluckEnv.gain.value = 0;
-                    pluckEnv.gain.setValueAtTime(0, now + pluckDelay);
-                    pluckEnv.gain.linearRampToValueAtTime(baseVolume * randomPluckVol, now + pluckDelay + 0.001);
-                    pluckEnv.gain.exponentialRampToValueAtTime(0.001, now + pluckDelay + 0.2);
-                    
-                    pluckOsc.connect(pluckEnv);
-                    randomPlucks.push({ osc: pluckOsc, env: pluckEnv });
+            // GRIND NOISE - harsh industrial noise layer (red)
+            let grindNoise = null;
+            let grindNoiseEnv = null;
+            if (sound.useGrindNoise) {
+                const grindBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.2, audioContext.sampleRate);
+                const grindData = grindBuffer.getChannelData(0);
+                for (let i = 0; i < grindData.length; i++) {
+                    grindData[i] = (Math.random() * 2 - 1) * 0.8;
                 }
+                grindNoise = audioContext.createBufferSource();
+                grindNoise.buffer = grindBuffer;
+                grindNoise.loop = true;
+                
+                const grindFilter = audioContext.createBiquadFilter();
+                grindFilter.type = 'bandpass';
+                grindFilter.frequency.value = 400;
+                grindFilter.Q.value = 3;
+                
+                grindNoiseEnv = audioContext.createGain();
+                grindNoiseEnv.gain.value = 0;
+                const grindNoiseVol = baseVolume * sound.grindNoiseRatio;
+                grindNoiseEnv.gain.linearRampToValueAtTime(grindNoiseVol, now + 0.02);
+                grindNoiseEnv.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                
+                grindNoise.connect(grindFilter);
+                grindFilter.connect(grindNoiseEnv);
             }
             
-            // BOWED GLASS - sustained singing tone like glass harmonica (pink)
-            let glassOsc = null;
-            let glassEnv = null;
-            if (sound.useBowedGlass) {
-                const glassVol = sound.glassVolume || 0.25;
-                glassOsc = audioContext.createOscillator();
-                glassOsc.type = 'sine';
-                glassOsc.frequency.value = baseFreq * sound.glassFreqShift;
+            // LOW RUMBLE - deep machinery rumble (red)
+            let lowRumble = null;
+            let lowRumbleEnv = null;
+            if (sound.useLowRumble) {
+                lowRumble = audioContext.createOscillator();
+                lowRumble.type = 'sawtooth';
+                lowRumble.frequency.value = baseFreq * sound.rumbleFreq;
                 
-                // Add vibrato to glass tone
-                const glassVibrato = audioContext.createOscillator();
-                glassVibrato.frequency.value = 5.5;
-                const glassVibratoGain = audioContext.createGain();
-                glassVibratoGain.gain.value = 8;
-                glassVibrato.connect(glassVibratoGain);
-                glassVibratoGain.connect(glassOsc.frequency);
-                glassVibrato.start(now);
-                glassVibrato.stop(now + duration);
+                lowRumbleEnv = audioContext.createGain();
+                lowRumbleEnv.gain.value = 0;
+                lowRumbleEnv.gain.linearRampToValueAtTime(baseVolume * 0.7, now + 0.05);
+                lowRumbleEnv.gain.exponentialRampToValueAtTime(0.001, now + duration);
                 
-                glassEnv = audioContext.createGain();
-                glassEnv.gain.value = 0;
-                glassEnv.gain.linearRampToValueAtTime(baseVolume * glassVol, now + 0.15);
-                glassEnv.gain.linearRampToValueAtTime(baseVolume * glassVol * 0.8, now + duration * 0.7);
-                glassEnv.gain.exponentialRampToValueAtTime(0.001, now + duration);
-                
-                glassOsc.connect(glassEnv);
-            }
-            
-            // CHORUS VOICES for thickness (red)
-            let chorusOscs = [];
-            if (sound.useChorus) {
-                for (let i = 0; i < sound.chorusVoices; i++) {
-                    const chorusOsc = audioContext.createOscillator();
-                    chorusOsc.type = sound.waveform;
-                    const spread = (Math.random() - 0.5) * sound.chorusSpread;
-                    chorusOsc.frequency.value = baseFreq;
-                    chorusOsc.detune.value = spread;
-                    
-                    const chorusEnv = audioContext.createGain();
-                    chorusEnv.gain.value = 0;
-                    const chorusVol = baseVolume * 0.3 / sound.chorusVoices;
-                    chorusEnv.gain.linearRampToValueAtTime(chorusVol, now + sound.attack);
-                    chorusEnv.gain.exponentialRampToValueAtTime(0.001, now + duration);
-                    
-                    chorusOsc.connect(chorusEnv);
-                    chorusOscs.push({ osc: chorusOsc, env: chorusEnv });
-                }
-            }
-            
-            // PULSE MODULATION for rhythm (red)
-            let pulseGain = null;
-            if (sound.usePulse) {
-                const pulseLfo = audioContext.createOscillator();
-                pulseLfo.frequency.value = sound.pulseRate;
-                const pulseLfoGain = audioContext.createGain();
-                pulseLfoGain.gain.value = 0.4;
-                pulseGain = audioContext.createGain();
-                pulseGain.gain.value = 0.6;
-                pulseLfo.connect(pulseLfoGain);
-                pulseLfoGain.connect(pulseGain.gain);
-                pulseLfo.start(now);
-                pulseLfo.stop(now + duration);
+                lowRumble.connect(lowRumbleEnv);
             }
             
             const env = audioContext.createGain();
@@ -1246,13 +1309,8 @@
             dryGain.gain.value = 1 - (sound.reverbMix || 0.5);
             wetGain.gain.value = sound.reverbMix || 0.5;
             
-            // Main oscillator routing - through pulse if present (red)
-            if (pulseGain) {
-                osc.connect(pulseGain);
-                pulseGain.connect(env);
-            } else {
-                osc.connect(env);
-            }
+            // Main oscillator routing
+            osc.connect(env);
             
             // Route harmonics to filter
             harmonics.forEach(h => h.env.connect(filter));
@@ -1276,29 +1334,41 @@
             // Rumble (brown) - chaotic low frequency
             if (rumbleEnv) rumbleEnv.connect(filter);
             
-            // Water droplets (green) - percussive pitch sweeps
-            waterDropNodes.forEach(drop => drop.env.connect(filter));
+            // Bamboo wind chimes (green) - hollow resonant tubes
+            bambooNodes.forEach(bamboo => bamboo.env.connect(filter));
             
-            // Percussion hits (green) - sharp attacks
-            percussionNodes.forEach(hit => hit.env.connect(filter));
+            // Hollow resonance (green) - sub-frequency
+            if (hollowEnv) hollowEnv.connect(filter);
             
-            // Brightness layer (green) - high frequency sparkle
-            if (brightnessEnv) brightnessEnv.connect(filter);
+            // Wind noise (green) - air rushing through bamboo
+            if (windEnv) windEnv.connect(filter);
             
-            // Music box tines (pink) - plucked metallic notes
-            musicBoxOscs.forEach(tine => tine.env.connect(filter));
+            // Metallic shimmer (green) - high overtones
+            shimmerNodes.forEach(shimmer => shimmer.env.connect(filter));
             
-            // Metallic ring (pink) - inharmonic overtones
-            metallicRingOscs.forEach(ring => ring.env.connect(filter));
+            // Ice crackle (pink) - brittle pops
+            iceCrackleNodes.forEach(ice => ice.env.connect(filter));
             
-            // Random plucks (pink) - scattered music box notes
-            randomPlucks.forEach(pluck => pluck.env.connect(filter));
+            // Frozen resonance (pink) - very high layers
+            frozenResonanceNodes.forEach(frozen => frozen.env.connect(filter));
             
-            // Bowed glass (pink) - sustained singing tone
-            if (glassEnv) glassEnv.connect(filter);
+            // Glass shatter (pink) - scattered impacts
+            glassShatterNodes.forEach(shatter => shatter.env.connect(filter));
             
-            // Chorus voices (red) - thick detuned layers
-            chorusOscs.forEach(chorus => chorus.env.connect(filter));
+            // High shimmer (pink) - ultra-high sparkle
+            if (highShimmerEnv) highShimmerEnv.connect(filter);
+            
+            // Metal grind (red) - modulated grinding
+            if (metalGrindEnv) metalGrindEnv.connect(filter);
+            
+            // Metal hits (red) - industrial impacts
+            metalHitNodes.forEach(hit => hit.env.connect(filter));
+            
+            // Grind noise (red) - harsh industrial noise
+            if (grindNoiseEnv) grindNoiseEnv.connect(filter);
+            
+            // Low rumble (red) - deep machinery
+            if (lowRumbleEnv) lowRumbleEnv.connect(filter);
             
             // Chain distortion effects for brown
             if (heavyDistortion && bitCrusher) {
@@ -1353,45 +1423,68 @@
                 rumbleOsc.stop(now + duration);
             }
             
-            waterDropNodes.forEach(drop => {
-                drop.osc.start(now);
-                drop.osc.stop(now + duration);
+            // GREEN - Bamboo wind chimes
+            bambooNodes.forEach(bamboo => {
+                bamboo.osc.start(now);
+                bamboo.osc.stop(now + duration);
             });
             
-            percussionNodes.forEach(hit => {
+            if (hollowResonance) {
+                hollowResonance.start(now);
+                hollowResonance.stop(now + duration);
+            }
+            
+            if (windNoise) {
+                windNoise.start(now);
+                windNoise.stop(now + duration);
+            }
+            
+            shimmerNodes.forEach(shimmer => {
+                shimmer.osc.start(now);
+                shimmer.osc.stop(now + duration);
+            });
+            
+            // PINK - Ice crystals
+            iceCrackleNodes.forEach(ice => {
+                ice.osc.start(now);
+                ice.osc.stop(now + duration);
+            });
+            
+            frozenResonanceNodes.forEach(frozen => {
+                frozen.osc.start(now);
+                frozen.osc.stop(now + duration);
+            });
+            
+            glassShatterNodes.forEach(shatter => {
+                shatter.osc.start(now);
+                shatter.osc.stop(now + duration);
+            });
+            
+            if (highShimmer) {
+                highShimmer.start(now);
+                highShimmer.stop(now + duration);
+            }
+            
+            // RED - Industrial machinery
+            if (metalGrindOsc) {
+                metalGrindOsc.start(now);
+                metalGrindOsc.stop(now + duration);
+            }
+            
+            metalHitNodes.forEach(hit => {
                 hit.osc.start(now);
                 hit.osc.stop(now + duration);
             });
             
-            if (brightnessOsc) {
-                brightnessOsc.start(now);
-                brightnessOsc.stop(now + duration);
+            if (grindNoise) {
+                grindNoise.start(now);
+                grindNoise.stop(now + duration);
             }
             
-            musicBoxOscs.forEach(tine => {
-                tine.osc.start(now);
-                tine.osc.stop(now + duration);
-            });
-            
-            metallicRingOscs.forEach(ring => {
-                ring.osc.start(now);
-                ring.osc.stop(now + duration);
-            });
-            
-            randomPlucks.forEach(pluck => {
-                pluck.osc.start(now);
-                pluck.osc.stop(now + duration);
-            });
-            
-            if (glassOsc) {
-                glassOsc.start(now);
-                glassOsc.stop(now + duration);
+            if (lowRumble) {
+                lowRumble.start(now);
+                lowRumble.stop(now + duration);
             }
-            
-            chorusOscs.forEach(chorus => {
-                chorus.osc.start(now);
-                chorus.osc.stop(now + duration);
-            });
         }
 
         function createMovementSound(velocity, direction, complexity, turbulenceLevel, accel) {
