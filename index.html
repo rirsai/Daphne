@@ -18,21 +18,22 @@
         }
         #controls {
             position: absolute;
-            top: 20px;
-            left: 20px;
+            top: 0;
+            left: 0;
             z-index: 100;
         }
         
         #audioPanel {
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.9);
-            border-radius: 50px;
-            padding: 14px 28px;
+            border: 0.75pt solid rgba(255, 255, 255, 0.95);
+            border-radius: 0;
+            padding: 12px 20px;
             display: flex;
             align-items: center;
             gap: 0;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
         }
         
         #audioPanel.expanded {
@@ -43,14 +44,16 @@
             background: transparent;
             border: none;
             color: white;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
+            letter-spacing: 0.5px;
             transition: all 0.2s;
             white-space: nowrap;
             padding: 0;
             margin: 0;
             line-height: 1;
+            text-transform: uppercase;
         }
         
         #toggleAudio:hover {
@@ -74,25 +77,67 @@
         }
         
         .color-swatch {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             cursor: pointer;
             transition: all 0.2s;
-            border: 2px solid transparent;
+            border: 0.75pt solid rgba(255, 255, 255, 0.3);
             flex-shrink: 0;
         }
         
         .color-swatch:hover {
-            transform: scale(1.15);
-            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
         }
         
         .color-swatch.selected {
             border-color: white;
-            border-width: 3px;
-            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 255, 255, 0.5);
-            transform: scale(1.15);
+            border-width: 1.5pt;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.9), 0 0 12px rgba(255, 255, 255, 0.6);
+            transform: scale(1.1);
+        }
+        
+        /* Glitch Effects Divider */
+        .glitch-divider {
+            width: 0.75pt;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 0 8px;
+            flex-shrink: 0;
+        }
+        
+        .glitch-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 0.75pt solid rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.4);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            padding: 0;
+            flex-shrink: 0;
+        }
+        
+        .glitch-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: scale(1.1);
+        }
+        
+        .glitch-btn.active {
+            background: rgba(0, 0, 0, 0.8);
+            border-color: white;
+            border-width: 1.5pt;
+            color: white;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.9), 0 0 12px rgba(255, 255, 255, 0.6);
+            transform: scale(1.1);
         }
     </style>
 </head>
@@ -313,6 +358,25 @@
         let currentDynamicColor = { r: 0.56, g: 0.57, b: 0.62 };
         let currentDiffusion = 0.3;
 
+        // ===== GLITCH EFFECTS SYSTEM =====
+        const glitchEffects = {
+            bitCrush: { active: false, name: 'Bit Crush', icon: '◼' },
+            corrupt: { active: false, name: 'Corrupt', icon: '◆' },
+            feedback: { active: false, name: 'Feedback', icon: '↻' },
+            rgbSplit: { active: false, name: 'RGB Split', icon: '▣' },
+            freeze: { active: false, name: 'Freeze', icon: '❄' }
+        };
+        
+        let glitchState = {
+            bitCrushDepth: 4,
+            corruptionRate: 0.05,
+            feedbackAmount: 0.3,
+            rgbSplitAmount: 0.01,
+            freezeFrame: null,
+            pixelSize: 32,  // EXTREME: Much larger pixels
+            prismLayers: 5
+        };
+
         function initColorPalette() {
             const palette = document.getElementById('colorPalette');
             colorVoices.forEach((voice, index) => {
@@ -334,6 +398,431 @@
             const voice = colorVoices[index];
             currentDynamicColor = voice.color;
             currentDiffusion = voice.diffusion;
+        }
+
+        // ===== GLITCH FUNCTIONS =====
+        
+        function initGlitchPanel() {
+            const palette = document.getElementById('colorPalette');
+            
+            // Add divider
+            const divider = document.createElement('div');
+            divider.className = 'glitch-divider';
+            palette.appendChild(divider);
+            
+            // Add glitch buttons
+            Object.keys(glitchEffects).forEach((key) => {
+                const effect = glitchEffects[key];
+                const btn = document.createElement('button');
+                btn.className = 'glitch-btn';
+                btn.innerHTML = effect.icon;
+                btn.dataset.glitch = key;
+                btn.title = effect.name;
+                btn.addEventListener('click', () => toggleGlitch(key, btn));
+                palette.appendChild(btn);
+            });
+        }
+        
+        function toggleGlitch(key, btn) {
+            glitchEffects[key].active = !glitchEffects[key].active;
+            btn.classList.toggle('active', glitchEffects[key].active);
+        }
+        
+        // Apply audio glitches to the color voice audio nodes
+        function applyAudioGlitches(audioNodes) {
+            if (!audioContext || !audioNodes) return audioNodes;
+            
+            let output = audioNodes.output;
+            const cursorVelocity = Math.sqrt(mouseVelX * mouseVelX + mouseVelY * mouseVelY);
+            
+            // Bit Crusher - EXTREME audio bit crushing
+            if (glitchEffects.bitCrush.active) {
+                const bitCrusher = audioContext.createWaveShaper();
+                const curve = new Float32Array(256);
+                // EXTREME: Much more aggressive bit depth
+                const dynamicDepth = Math.max(1, glitchState.bitCrushDepth - cursorVelocity * 30);
+                const step = Math.pow(2, dynamicDepth);
+                for (let i = 0; i < 256; i++) {
+                    const x = (i / 128) - 1;
+                    const crushed = Math.round(x * step) / step;
+                    // Add random glitch artifacts (5% chance of corruption)
+                    curve[i] = Math.random() < 0.95 ? crushed : crushed * (Math.random() * 2 - 1);
+                }
+                bitCrusher.curve = curve;
+                
+                // Add distortion for more aggressive sound
+                const distortion = audioContext.createWaveShaper();
+                const distCurve = new Float32Array(256);
+                for (let i = 0; i < 256; i++) {
+                    const x = (i / 128) - 1;
+                    distCurve[i] = Math.tanh(x * 3); // Heavy distortion
+                }
+                distortion.curve = distCurve;
+                
+                output.connect(bitCrusher);
+                bitCrusher.connect(distortion);
+                output = distortion;
+            }
+            
+            // Feedback - cursor speed controls feedback amount
+            if (glitchEffects.feedback.active) {
+                const feedbackDelay = audioContext.createDelay();
+                const feedbackGain = audioContext.createGain();
+                // Cursor position controls delay time
+                feedbackDelay.delayTime.value = 0.05 + mouseY * 0.15;
+                // Cursor velocity controls feedback intensity
+                feedbackGain.gain.value = glitchState.feedbackAmount * (1 + cursorVelocity * 2);
+                
+                output.connect(feedbackDelay);
+                feedbackDelay.connect(feedbackGain);
+                feedbackGain.connect(feedbackDelay);
+                output = feedbackDelay;
+            }
+            
+            // Corrupt - cursor position triggers corruption
+            if (glitchEffects.corrupt.active) {
+                // More corruption near edges and with fast movement
+                const edgeProximity = Math.max(
+                    Math.abs(mouseX - 0.5),
+                    Math.abs(mouseY - 0.5)
+                ) * 2;
+                const corruptChance = glitchState.corruptionRate * (1 + edgeProximity + cursorVelocity * 5);
+                
+                if (Math.random() < corruptChance) {
+                    audioNodes.oscillators.forEach(osc => {
+                        if (osc && osc.frequency) {
+                            const jump = Math.random() > 0.5 ? 2 : 0.5;
+                            osc.frequency.setValueAtTime(osc.frequency.value * jump, audioContext.currentTime);
+                            osc.frequency.exponentialRampToValueAtTime(osc.frequency.value / jump, audioContext.currentTime + 0.05);
+                        }
+                    });
+                }
+            }
+            
+            // RGB Split - affects audio panning based on cursor position
+            if (glitchEffects.rgbSplit.active && audioNodes.panner) {
+                // Cursor X position controls extreme panning
+                const panAmount = (mouseX - 0.5) * 3; // Exaggerated panning
+                audioNodes.panner.pan.value = Math.max(-1, Math.min(1, panAmount));
+            }
+            
+            // Freeze - freezes at cursor position
+            if (glitchEffects.freeze.active) {
+                if (!glitchState.freezeFrame) {
+                    // Freeze based on cursor Y position
+                    const freezeFreq = 200 + mouseY * 1000;
+                    glitchState.freezeFrame = {
+                        frequency: freezeFreq,
+                        time: audioContext.currentTime
+                    };
+                    // Apply frozen frequency
+                    audioNodes.oscillators.forEach(osc => {
+                        if (osc && osc.frequency) {
+                            osc.frequency.setValueAtTime(freezeFreq, audioContext.currentTime);
+                        }
+                    });
+                }
+            } else {
+                glitchState.freezeFrame = null;
+            }
+            
+            return { ...audioNodes, output };
+        }
+        
+        // Apply visual glitches to the fluid simulation
+        function applyVisualGlitches() {
+            // Reset color and diffusion to base values (fixes color drift bug)
+            if (selectedColorIndex >= 0) {
+                const voice = colorVoices[selectedColorIndex];
+                currentDynamicColor = { ...voice.color };
+                currentDiffusion = voice.diffusion;
+            }
+            
+            // Bit Crush - EXTREME PIXELATION EFFECT with color quantization
+            if (glitchEffects.bitCrush.active) {
+                // EXTREME: Dramatically reduce diffusion for super blocky effect
+                currentDiffusion *= 0.15; // Much more blocky than before
+                
+                // COLOR QUANTIZATION - reduce to limited color palette (like 8-bit graphics)
+                if (selectedColorIndex >= 0) {
+                    const voice = colorVoices[selectedColorIndex];
+                    const colorLevels = 4; // Only 4 shades per channel = 64 total colors
+                    currentDynamicColor.r = Math.floor(voice.color.r * colorLevels) / colorLevels;
+                    currentDynamicColor.g = Math.floor(voice.color.g * colorLevels) / colorLevels;
+                    currentDynamicColor.b = Math.floor(voice.color.b * colorLevels) / colorLevels;
+                }
+                
+                // Create MULTIPLE pixelated splats constantly for extreme effect
+                const numSplats = 3; // Multiple splats per frame
+                for (let i = 0; i < numSplats; i++) {
+                    const gridSize = glitchState.pixelSize;
+                    
+                    // Snap to pixel grid with random offset for glitchy look
+                    const offsetX = (Math.random() > 0.8) ? (1 / gridSize) : 0;
+                    const offsetY = (Math.random() > 0.8) ? (1 / gridSize) : 0;
+                    const gridX = Math.floor(mouseX * gridSize) / gridSize + (0.5 / gridSize) + offsetX;
+                    const gridY = Math.floor(mouseY * gridSize) / gridSize + (0.5 / gridSize) + offsetY;
+                    
+                    // Velocity splat - HUGE radius for massive pixels
+                    gl.useProgram(splatProgram);
+                    const posLoc = gl.getAttribLocation(splatProgram, 'position');
+                    gl.enableVertexAttribArray(posLoc);
+                    gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+                    
+                    bindFramebuffer(velocity.write);
+                    gl.uniform1i(gl.getUniformLocation(splatProgram, 'uTarget'), 0);
+                    gl.uniform1f(gl.getUniformLocation(splatProgram, 'aspectRatio'), canvas.width / canvas.height);
+                    gl.uniform2f(gl.getUniformLocation(splatProgram, 'point'), gridX, gridY);
+                    gl.uniform3f(gl.getUniformLocation(splatProgram, 'color'), 
+                        mouseVelX * 5, mouseVelY * 5, 0.0
+                    );
+                    gl.uniform1f(gl.getUniformLocation(splatProgram, 'radius'), 0.04); // HUGE pixels
+                    
+                    gl.activeTexture(gl.TEXTURE0);
+                    gl.bindTexture(gl.TEXTURE_2D, velocity.read.texture);
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                    velocity.swap();
+                    
+                    // Pixelated color splats with quantized colors
+                    if (selectedColorIndex >= 0 && colorSplatProgram) {
+                        const voice = colorVoices[selectedColorIndex];
+                        
+                        gl.useProgram(colorSplatProgram);
+                        const colorPosLoc = gl.getAttribLocation(colorSplatProgram, 'position');
+                        gl.enableVertexAttribArray(colorPosLoc);
+                        gl.vertexAttribPointer(colorPosLoc, 2, gl.FLOAT, false, 0, 0);
+                        
+                        bindFramebuffer(colorBuffer.write);
+                        gl.uniform1i(gl.getUniformLocation(colorSplatProgram, 'uTarget'), 0);
+                        gl.uniform1f(gl.getUniformLocation(colorSplatProgram, 'aspectRatio'), canvas.width / canvas.height);
+                        gl.uniform2f(gl.getUniformLocation(colorSplatProgram, 'point'), gridX, gridY);
+                        
+                        // Quantized colors (limited palette like old video games)
+                        const levels = 4;
+                        const r = Math.floor(voice.color.r * levels) / levels;
+                        const g = Math.floor(voice.color.g * levels) / levels;
+                        const b = Math.floor(voice.color.b * levels) / levels;
+                        
+                        gl.uniform3f(gl.getUniformLocation(colorSplatProgram, 'color'), 
+                            r * 0.7, 
+                            g * 0.7, 
+                            b * 0.7
+                        );
+                        gl.uniform1f(gl.getUniformLocation(colorSplatProgram, 'radius'), 0.035); // HUGE color blocks
+                        
+                        gl.activeTexture(gl.TEXTURE0);
+                        gl.bindTexture(gl.TEXTURE_2D, colorBuffer.read.texture);
+                        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                        colorBuffer.swap();
+                    }
+                }
+                
+                // GLITCH ARTIFACTS - random pixel corruption
+                if (Math.random() < 0.2) {
+                    const gridSize = glitchState.pixelSize;
+                    const randomX = Math.floor(Math.random() * gridSize) / gridSize;
+                    const randomY = Math.floor(Math.random() * gridSize) / gridSize;
+                    
+                    gl.useProgram(splatProgram);
+                    const posLoc = gl.getAttribLocation(splatProgram, 'position');
+                    gl.enableVertexAttribArray(posLoc);
+                    gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+                    
+                    bindFramebuffer(velocity.write);
+                    gl.uniform1i(gl.getUniformLocation(splatProgram, 'uTarget'), 0);
+                    gl.uniform1f(gl.getUniformLocation(splatProgram, 'aspectRatio'), canvas.width / canvas.height);
+                    gl.uniform2f(gl.getUniformLocation(splatProgram, 'point'), randomX, randomY);
+                    gl.uniform3f(gl.getUniformLocation(splatProgram, 'color'), 
+                        (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, 0.0
+                    );
+                    gl.uniform1f(gl.getUniformLocation(splatProgram, 'radius'), 0.02);
+                    
+                    gl.activeTexture(gl.TEXTURE0);
+                    gl.bindTexture(gl.TEXTURE_2D, velocity.read.texture);
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                    velocity.swap();
+                }
+            }
+            
+            // Corrupt - chaos radiating from cursor + COLOR INVERSION
+            if (glitchEffects.corrupt.active) {
+                // Invert colors based on cursor proximity and movement
+                const cursorVelocity = Math.sqrt(mouseVelX * mouseVelX + mouseVelY * mouseVelY);
+                if (selectedColorIndex >= 0 && cursorVelocity > 0.01) {
+                    const voice = colorVoices[selectedColorIndex];
+                    // Invert colors: subtract from 1.0
+                    currentDynamicColor.r = 1.0 - voice.color.r;
+                    currentDynamicColor.g = 1.0 - voice.color.g;
+                    currentDynamicColor.b = 1.0 - voice.color.b;
+                }
+                
+                // Spawn corruption near cursor
+                if (Math.random() < glitchState.corruptionRate * 3) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const dist = Math.random() * 0.2;
+                    const x = mouseX + Math.cos(angle) * dist;
+                    const y = mouseY + Math.sin(angle) * dist;
+                    const force = 8 + Math.random() * 15;
+                    
+                    gl.useProgram(splatProgram);
+                    const posLoc = gl.getAttribLocation(splatProgram, 'position');
+                    gl.enableVertexAttribArray(posLoc);
+                    gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+                    
+                    bindFramebuffer(velocity.write);
+                    gl.uniform1i(gl.getUniformLocation(splatProgram, 'uTarget'), 0);
+                    gl.uniform1f(gl.getUniformLocation(splatProgram, 'aspectRatio'), canvas.width / canvas.height);
+                    gl.uniform2f(gl.getUniformLocation(splatProgram, 'point'), x, y);
+                    gl.uniform3f(gl.getUniformLocation(splatProgram, 'color'), 
+                        Math.cos(angle) * force, 
+                        Math.sin(angle) * force, 
+                        0.0
+                    );
+                    gl.uniform1f(gl.getUniformLocation(splatProgram, 'radius'), 0.002 + Math.random() * 0.008);
+                    
+                    gl.activeTexture(gl.TEXTURE0);
+                    gl.bindTexture(gl.TEXTURE_2D, velocity.read.texture);
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                    velocity.swap();
+                    
+                    // Inject inverted color splats at corruption points
+                    if (selectedColorIndex >= 0 && colorSplatProgram) {
+                        const voice = colorVoices[selectedColorIndex];
+                        
+                        gl.useProgram(colorSplatProgram);
+                        const colorPosLoc = gl.getAttribLocation(colorSplatProgram, 'position');
+                        gl.enableVertexAttribArray(colorPosLoc);
+                        gl.vertexAttribPointer(colorPosLoc, 2, gl.FLOAT, false, 0, 0);
+                        
+                        bindFramebuffer(colorBuffer.write);
+                        gl.uniform1i(gl.getUniformLocation(colorSplatProgram, 'uTarget'), 0);
+                        gl.uniform1f(gl.getUniformLocation(colorSplatProgram, 'aspectRatio'), canvas.width / canvas.height);
+                        gl.uniform2f(gl.getUniformLocation(colorSplatProgram, 'point'), x, y);
+                        
+                        // INVERTED colors at corruption points
+                        gl.uniform3f(gl.getUniformLocation(colorSplatProgram, 'color'), 
+                            (1.0 - voice.color.r) * 0.8,
+                            (1.0 - voice.color.g) * 0.8,
+                            (1.0 - voice.color.b) * 0.8
+                        );
+                        gl.uniform1f(gl.getUniformLocation(colorSplatProgram, 'radius'), 0.004);
+                        
+                        gl.activeTexture(gl.TEXTURE0);
+                        gl.bindTexture(gl.TEXTURE_2D, colorBuffer.read.texture);
+                        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                        colorBuffer.swap();
+                    }
+                }
+            }
+            
+            // RGB Split - PRISM EFFECT with multiple color layers (cursor-responsive)
+            if (glitchEffects.rgbSplit.active && selectedColorIndex >= 0 && colorSplatProgram) {
+                const voice = colorVoices[selectedColorIndex];
+                const cursorInfluence = Math.sqrt(mouseVelX * mouseVelX + mouseVelY * mouseVelY);
+                
+                // Create multiple color layers (prism effect)
+                for (let i = 0; i < glitchState.prismLayers; i++) {
+                    const angle = (i / glitchState.prismLayers) * Math.PI * 2;
+                    const offset = glitchState.rgbSplitAmount * (1 + cursorInfluence * 5);
+                    const splitX = mouseX + Math.cos(angle) * offset;
+                    const splitY = mouseY + Math.sin(angle) * offset;
+                    
+                    // Shift hue for each layer
+                    const hueShift = i / glitchState.prismLayers;
+                    const r = voice.color.r * (1 - hueShift) + hueShift;
+                    const g = voice.color.g * (1 - hueShift * 0.5) + hueShift * 0.5;
+                    const b = voice.color.b * (1 - hueShift * 0.3) + hueShift * 0.7;
+                    
+                    gl.useProgram(colorSplatProgram);
+                    const colorPosLoc = gl.getAttribLocation(colorSplatProgram, 'position');
+                    gl.enableVertexAttribArray(colorPosLoc);
+                    gl.vertexAttribPointer(colorPosLoc, 2, gl.FLOAT, false, 0, 0);
+                    
+                    bindFramebuffer(colorBuffer.write);
+                    gl.uniform1i(gl.getUniformLocation(colorSplatProgram, 'uTarget'), 0);
+                    gl.uniform1f(gl.getUniformLocation(colorSplatProgram, 'aspectRatio'), canvas.width / canvas.height);
+                    gl.uniform2f(gl.getUniformLocation(colorSplatProgram, 'point'), splitX, splitY);
+                    gl.uniform3f(gl.getUniformLocation(colorSplatProgram, 'color'), r * 0.3, g * 0.3, b * 0.3);
+                    gl.uniform1f(gl.getUniformLocation(colorSplatProgram, 'radius'), 0.002);
+                    
+                    gl.activeTexture(gl.TEXTURE0);
+                    gl.bindTexture(gl.TEXTURE_2D, colorBuffer.read.texture);
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                    colorBuffer.swap();
+                }
+            }
+            
+            // Feedback - trails following cursor path
+            if (glitchEffects.feedback.active) {
+                const velocity = Math.sqrt(mouseVelX * mouseVelX + mouseVelY * mouseVelY);
+                currentDiffusion *= 1.2 + velocity * 2; // Stronger trails when moving fast
+            }
+            
+            // Freeze - DARKENS entire fluid + freezes motion at cursor
+            if (glitchEffects.freeze.active) {
+                // DARKEN the entire fluid - creates frozen/crystallized appearance
+                if (selectedColorIndex >= 0) {
+                    const voice = colorVoices[selectedColorIndex];
+                    // Dramatically darken colors (multiply by 0.3 = 70% darker)
+                    currentDynamicColor.r = voice.color.r * 0.3;
+                    currentDynamicColor.g = voice.color.g * 0.3;
+                    currentDynamicColor.b = voice.color.b * 0.3;
+                    
+                    // Add icy blue tint
+                    currentDynamicColor.b += 0.1;
+                }
+                
+                // Reduce diffusion for sharper, frozen texture
+                currentDiffusion *= 0.4;
+                
+                // Create freeze effect at cursor - counter-velocity to stop motion
+                gl.useProgram(splatProgram);
+                const posLoc = gl.getAttribLocation(splatProgram, 'position');
+                gl.enableVertexAttribArray(posLoc);
+                gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+                
+                bindFramebuffer(velocity.write);
+                gl.uniform1i(gl.getUniformLocation(splatProgram, 'uTarget'), 0);
+                gl.uniform1f(gl.getUniformLocation(splatProgram, 'aspectRatio'), canvas.width / canvas.height);
+                gl.uniform2f(gl.getUniformLocation(splatProgram, 'point'), mouseX, mouseY);
+                gl.uniform3f(gl.getUniformLocation(splatProgram, 'color'), 
+                    -mouseVelX * 0.5, -mouseVelY * 0.5, 0.0 // Counter-velocity
+                );
+                gl.uniform1f(gl.getUniformLocation(splatProgram, 'radius'), 0.05);
+                
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, velocity.read.texture);
+                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                velocity.swap();
+                
+                // Inject dark frozen color splats around cursor
+                if (selectedColorIndex >= 0 && colorSplatProgram) {
+                    const voice = colorVoices[selectedColorIndex];
+                    
+                    gl.useProgram(colorSplatProgram);
+                    const colorPosLoc = gl.getAttribLocation(colorSplatProgram, 'position');
+                    gl.enableVertexAttribArray(colorPosLoc);
+                    gl.vertexAttribPointer(colorPosLoc, 2, gl.FLOAT, false, 0, 0);
+                    
+                    bindFramebuffer(colorBuffer.write);
+                    gl.uniform1i(gl.getUniformLocation(colorSplatProgram, 'uTarget'), 0);
+                    gl.uniform1f(gl.getUniformLocation(colorSplatProgram, 'aspectRatio'), canvas.width / canvas.height);
+                    gl.uniform2f(gl.getUniformLocation(colorSplatProgram, 'point'), mouseX, mouseY);
+                    
+                    // Dark frozen colors with blue tint
+                    gl.uniform3f(gl.getUniformLocation(colorSplatProgram, 'color'), 
+                        voice.color.r * 0.2,
+                        voice.color.g * 0.2,
+                        voice.color.b * 0.3 + 0.1 // Blue tint
+                    );
+                    gl.uniform1f(gl.getUniformLocation(colorSplatProgram, 'radius'), 0.01);
+                    
+                    gl.activeTexture(gl.TEXTURE0);
+                    gl.bindTexture(gl.TEXTURE_2D, colorBuffer.read.texture);
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                    colorBuffer.swap();
+                }
+            }
         }
 
         const vertexShaderSource = `
@@ -1940,6 +2429,7 @@
         
         window.addEventListener('DOMContentLoaded', function() {
             initColorPalette();
+            initGlitchPanel();
             
             const toggleBtn = document.getElementById('toggleAudio');
             const audioPanel = document.getElementById('audioPanel');
@@ -1959,6 +2449,15 @@
                         this.textContent = 'Sound On';
                         audioPanel.classList.remove('expanded');
                         colorPalette.classList.remove('visible');
+                        
+                        // Deactivate all glitch effects when audio is off
+                        Object.keys(glitchEffects).forEach(key => {
+                            if (glitchEffects[key].active) {
+                                glitchEffects[key].active = false;
+                                const btn = document.querySelector(`[data-glitch="${key}"]`);
+                                if (btn) btn.classList.remove('active');
+                            }
+                        });
                         selectedColorIndex = -1;
                         document.querySelectorAll('.color-swatch').forEach(swatch => {
                             swatch.classList.remove('selected');
@@ -1971,6 +2470,9 @@
         function render(time) {
             time *= 0.001;
             gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            
+            // Apply visual glitch effects
+            applyVisualGlitches();
             
             const dt = Math.min(1.0 / 60.0, 0.016);
             const deltaX = (mouseX - lastMouseX) * 10.0;
