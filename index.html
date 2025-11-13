@@ -19,14 +19,16 @@
         #controls {
             position: absolute;
             top: 0;
-            left: 0;
+            left: 20px;
             z-index: 100;
+            transform: scale(0.75);
+            transform-origin: top left;
         }
         
         #audioPanel {
             background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(10px);
-            border: 0.75pt solid rgba(255, 255, 255, 0.95);
+            border: none;
             border-radius: 0;
             padding: 12px 20px;
             display: flex;
@@ -224,12 +226,18 @@
         window.addEventListener('resize', resize);
 
         // COLOR VOICE SYSTEM with persistence
+        /*
+         * COLOR-SPECIFIC SCALES:
+         * Each color now uses a different musical scale for variety!
+         * This means different colors will play different sets of notes.
+         */
         const colorVoices = [
             {
                 color: { r: 0.4, g: 0.4, b: 0.4 },
                 hex: '#666666',
                 persistence: 0.8,
                 diffusion: 0.3,
+                scale: 'pentatonic',  // Grey = Pentatonic (safe, balanced)
                 sound: {
                     waveform: 'sine',
                     baseFreqMultiplier: 0.5,
@@ -247,6 +255,7 @@
                 hex: '#B36A49',
                 persistence: 0.7,
                 diffusion: 0.4,
+                scale: 'blues',  // Brown = Blues (earthy, soulful, grounded)
                 sound: {
                     waveform: 'triangle',
                     baseFreqMultiplier: 0.5,
@@ -277,6 +286,7 @@
                 hex: '#4D5DE8',
                 persistence: 1.0,
                 diffusion: 0.25,
+                scale: 'minor',  // Blue = Minor (emotional, deep, melancholic)
                 sound: {
                     waveform: 'sine',
                     baseFreqMultiplier: 0.5,
@@ -297,6 +307,7 @@
                 hex: '#D9E64D',
                 persistence: 0.4,
                 diffusion: 0.6,
+                scale: 'major',  // Yellow = Major (bright, happy, uplifting)
                 sound: {
                     waveform: 'sawtooth',
                     baseFreqMultiplier: 6.0,
@@ -314,6 +325,7 @@
                 hex: '#33CC66',
                 persistence: 0.8,
                 diffusion: 0.35,
+                scale: 'pentatonic',  // Green = Pentatonic (natural, balanced, bamboo-like)
                 sound: {
                     waveform: 'triangle',
                     baseFreqMultiplier: 2.5,
@@ -342,6 +354,7 @@
                 hex: '#F299B3',
                 persistence: 1.0,
                 diffusion: 0.3,
+                scale: 'harmonicMinor',  // Pink = Harmonic Minor (exotic, crystalline, mysterious)
                 sound: {
                     waveform: 'sine',
                     baseFreqMultiplier: 4.0,  // Very high pitch
@@ -370,6 +383,7 @@
                 hex: '#FF6659',
                 persistence: 0.5,
                 diffusion: 0.5,
+                scale: 'chromatic',  // Red = Chromatic (all notes, industrial, chaotic)
                 sound: {
                     waveform: 'sawtooth',
                     baseFreqMultiplier: 0.5,  // Low, heavy frequency
@@ -449,7 +463,8 @@
             minor: [0, 2, 3, 5, 7, 8, 10],  // Sad, emotional
             pentatonic: [0, 2, 4, 7, 9],    // Can't play a wrong note! (black keys on piano)
             blues: [0, 3, 5, 6, 7, 10],     // Bluesy, soulful
-            dorian: [0, 2, 3, 5, 7, 9, 10]  // Jazzy, sophisticated
+            wholeTone: [0, 2, 4, 6, 8, 10], // Dreamy, floating, no tonal center (used in impressionist music)
+            harmonicMinor: [0, 2, 3, 5, 7, 8, 11]  // Exotic, mysterious, crystalline (Middle Eastern flavor)
         };
         
         // Current musical settings
@@ -894,13 +909,15 @@
                 osc.frequency.value = rootFreq;
                 
                 const env = audioContext.createGain();
-                env.gain.value = 0.08;
-                env.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                env.gain.value = 0.15;  // Increased volume so it's audible
+                env.gain.exponentialRampToValueAtTime(0.001, now + 0.4);  // Longer duration
                 
                 osc.connect(env);
+                // Connect to both convolver (for reverb) AND master (for direct sound)
                 env.connect(convolver);
+                env.connect(masterGain);
                 osc.start(now);
-                osc.stop(now + 0.2);
+                osc.stop(now + 0.4);
             }
         }
         
@@ -1784,14 +1801,15 @@
         }
         
         /**
-         * QUANTIZE PITCH FROM MOUSE POSITION
+         * QUANTIZE PITCH FROM MOUSE POSITION (COLOR-SPECIFIC)
          * This function converts cursor Y position into a musical note frequency
+         * Each color uses its own scale for variety!
          * 
          * HOW IT WORKS:
          * 1. Y position maps to a range of octaves (set by musicalSettings.octaveRange)
          * 2. We calculate a continuous frequency across that range
-         * 3. We quantize it to the nearest note in the selected scale
-         * 4. Result: cursor movement = musical melody!
+         * 3. We quantize it to the nearest note in the SELECTED COLOR'S scale
+         * 4. Result: cursor movement = musical melody, different for each color!
          * 
          * @param {number} mouseYPos - Cursor Y position (0 at top, 1 at bottom)
          * @returns {number} - Quantized frequency in Hz
@@ -1813,9 +1831,17 @@
             // Calculate the raw MIDI note (can be fractional, like 62.5)
             const rawMidiNote = lowestNote + (normalizedY * (highestNote - lowestNote));
             
-            // Convert to frequency, then quantize to scale
+            // Convert to frequency
             const rawFreq = midiToFreq(rawMidiNote);
-            const quantizedFreq = quantizeToScale(rawFreq, musicalSettings.scale, musicalSettings.rootNote);
+            
+            // Get the scale for the currently selected color (or default to pentatonic)
+            let scaleToUse = musicalSettings.scale;  // Default
+            if (selectedColorIndex >= 0 && selectedColorIndex < colorVoices.length) {
+                scaleToUse = colorVoices[selectedColorIndex].scale || musicalSettings.scale;
+            }
+            
+            // Quantize to the color-specific scale
+            const quantizedFreq = quantizeToScale(rawFreq, scaleToUse, musicalSettings.rootNote);
             
             return quantizedFreq;
         }
@@ -2945,6 +2971,50 @@
                 createStopAccent(prevVelocityMag);
             }
         }
+        
+        /*
+         * AUDIO CLEANUP FUNCTION
+         * This prevents sound caching issues when refreshing the page
+         * - Stops all beat intervals
+         * - Closes the audio context properly
+         * - Clears any lingering audio nodes
+         */
+        function cleanupAudio() {
+            // Stop all beat intervals
+            Object.keys(beatEffects).forEach(key => {
+                stopBeat(key);
+            });
+            
+            // Close audio context if it exists
+            if (audioContext && audioContext.state !== 'closed') {
+                try {
+                    audioContext.close();
+                } catch(e) {
+                    console.log('Audio context cleanup:', e);
+                }
+            }
+            
+            audioEnabled = false;
+            audioContext = null;
+        }
+        
+        // Clean up audio when page is about to unload (refresh/close)
+        window.addEventListener('beforeunload', cleanupAudio);
+        
+        // Also clean up when visibility changes (switching tabs)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && audioContext) {
+                // Pause/suspend audio when tab is hidden to prevent issues
+                if (audioContext.state === 'running') {
+                    audioContext.suspend();
+                }
+            } else if (!document.hidden && audioContext && audioEnabled) {
+                // Resume audio when tab is visible again
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+            }
+        });
         
         window.addEventListener('DOMContentLoaded', function() {
             initColorPalette();
