@@ -2822,14 +2822,26 @@
         let lastColorIntensity = 0;
         
         function initAudio() {
+            console.log('🎵 initAudio() called');
+            
             // iOS-specific: Use webkit prefix and handle suspended state
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                console.log('✓ AudioContext created, state:', audioContext.state);
+            } catch (e) {
+                console.error('❌ Failed to create AudioContext:', e);
+                alert('Cannot create audio context: ' + e.message);
+                return;
+            }
             
             // iOS CRITICAL: Audio context starts in 'suspended' state on iOS
             // Must explicitly resume it after user interaction
             if (audioContext.state === 'suspended') {
+                console.log('⏸ Audio context suspended, resuming...');
                 audioContext.resume().then(() => {
-                    console.log('✓ Audio context resumed on iOS');
+                    console.log('✓ Audio context resumed, state:', audioContext.state);
+                }).catch((e) => {
+                    console.error('❌ Failed to resume:', e);
                 });
             }
             
@@ -4902,10 +4914,12 @@
             const colorPalette = document.getElementById('colorPalette');
             
             if (toggleBtn) {
-                toggleBtn.addEventListener('click', function() {
-                    console.log('🔘 Sound button clicked');
+                // iOS: Add BOTH click AND touchstart for better compatibility
+                const handleToggle = function() {
+                    console.log('🔘 Sound button activated');
                     if (!audioEnabled) {
                         try {
+                            console.log('🎵 Calling initAudio()...');
                             initAudio();
                             // Don't set audioEnabled here - let initAudio() set it
                             this.textContent = 'Sound Off';
@@ -4979,7 +4993,12 @@
                             swatch.classList.remove('selected');
                         });
                     }
-                });
+                };
+                
+                // Add BOTH click and touchstart listeners for iOS compatibility
+                toggleBtn.addEventListener('click', handleToggle);
+                toggleBtn.addEventListener('touchstart', handleToggle, { passive: false });
+                console.log('✓ Sound button listeners added (click + touchstart)');
             }
         });
 
