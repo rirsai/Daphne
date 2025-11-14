@@ -2599,12 +2599,25 @@
             }
         });
 
+        let lastTouchSoundTime = 0;
+        
         canvas.addEventListener('touchmove', (e) => {
             e.preventDefault();
             if (e.touches.length > 0) {
                 const rect = canvas.getBoundingClientRect();
                 mouseX = e.touches[0].clientX / rect.width;
                 mouseY = 1.0 - e.touches[0].clientY / rect.height;
+                
+                // Force immediate visual update for iOS
+                pendingClicks.push({ x: mouseX, y: mouseY });
+                
+                // Trigger sound on touch move (throttled to avoid overload)
+                const now = Date.now();
+                if (audioEnabled && selectedColorIndex >= 0 && (now - lastTouchSoundTime) > 50) {
+                    triggerColorVoice(selectedColorIndex, mouseX, mouseY, 0.3);
+                    lastTouchSoundTime = now;
+                    console.log('🔊 Touch sound triggered');
+                }
             }
         }, { passive: false });
         
@@ -4878,7 +4891,14 @@
             }
         });
 
+        let renderFrameCount = 0;
+        
         function render(time) {
+            renderFrameCount++;
+            if (renderFrameCount === 1) {
+                console.log('✓ Render loop started');
+            }
+            
             time *= 0.001;
             gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
             
@@ -5009,6 +5029,9 @@
             }
             
             if (pendingClicks.length > 0) {
+                if (renderFrameCount % 60 === 0) { // Log once per second
+                    console.log('💦 Processing', pendingClicks.length, 'splats');
+                }
                 pendingClicks.forEach(click => {
                     // Velocity splash
                     gl.useProgram(splatProgram);
