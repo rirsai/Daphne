@@ -25,6 +25,12 @@
             /* Prevent touch highlighting and scrolling */
             -webkit-tap-highlight-color: transparent;
             touch-action: none;
+            /* Ensure canvas is touchable */
+            pointer-events: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
         }
         #controls {
             position: absolute;
@@ -33,6 +39,13 @@
             z-index: 100;
             transform: scale(0.75);
             transform-origin: top left;
+            /* Ensure controls don't block canvas touches */
+            pointer-events: none;
+        }
+        
+        /* But allow interactions with control elements themselves */
+        #controls * {
+            pointer-events: auto;
         }
         
         #audioPanel {
@@ -2621,8 +2634,18 @@
             }
         }, { passive: false });
         
+        // TEST: Simple alert to verify touch events work
+        let touchTestDone = false;
+        
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
+            
+            // ONE-TIME TEST: Show alert on first touch to verify events work
+            if (!touchTestDone) {
+                touchTestDone = true;
+                alert('Touch detected! X:' + e.touches[0].clientX + ' Y:' + e.touches[0].clientY);
+            }
+            
             if (e.touches.length === 0) return; // Safety check
             
             // iOS: Resume audio context if suspended (critical for iOS)
