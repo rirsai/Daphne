@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Daphne - Oramics Fluid Synth</title>
     <style>
         body {
@@ -10,11 +10,21 @@
             overflow: hidden;
             background: #000;
             font-family: 'Arial', sans-serif;
+            /* Touch screen optimizations */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: none;
         }
         canvas {
             display: block;
             width: 100vw;
             height: 100vh;
+            /* Prevent touch highlighting and scrolling */
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
         }
         #controls {
             position: absolute;
@@ -222,6 +232,142 @@
             0% { transform: scale(1.1) rotate(0deg); }
             50% { transform: scale(1.15) rotate(180deg); }
             100% { transform: scale(1.1) rotate(360deg); }
+        }
+        
+        /* ===== MOBILE RESPONSIVE LAYOUT ===== */
+        @media (max-width: 768px) {
+            /* Reposition controls to left edge */
+            #controls {
+                position: fixed;
+                top: 0;
+                left: 0;
+                transform: none;
+                z-index: 100;
+                height: 100vh;
+                display: flex;
+                align-items: flex-start;
+            }
+            
+            /* Audio panel - vertical layout */
+            #audioPanel {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 0;
+                gap: 0;
+                background: transparent;
+                backdrop-filter: none;
+                box-shadow: none;
+                height: 100vh;
+            }
+            
+            #audioPanel.expanded {
+                gap: 0;
+            }
+            
+            /* Sound On button - rotated 90° on left edge, 20% smaller */
+            #toggleAudio {
+                writing-mode: vertical-rl;
+                text-orientation: mixed;
+                transform: rotate(180deg);
+                padding: 16px 10px; /* 20% smaller padding */
+                background: rgba(0, 0, 0, 0.9);
+                backdrop-filter: blur(10px);
+                border-radius: 0;
+                font-size: 9px; /* 20% smaller from 11px */
+                letter-spacing: 1.6px; /* 20% smaller from 2px */
+                height: auto;
+                width: auto;
+                box-shadow: 2px 0 8px rgba(0, 0, 0, 0.5);
+                /* Touch friendly */
+                -webkit-tap-highlight-color: transparent;
+            }
+            
+            /* Palette container - vertical stacking */
+            #colorPalette {
+                flex-direction: column;
+                gap: 8px;
+                padding: 12px 8px;
+                width: auto;
+                max-height: calc(100vh - 100px);
+                overflow-y: auto;
+                overflow-x: visible;
+                background: rgba(0, 0, 0, 0.9);
+                backdrop-filter: blur(10px);
+                box-shadow: 2px 0 8px rgba(0, 0, 0, 0.5);
+                /* Smooth touch scrolling */
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+                touch-action: pan-y; /* Allow vertical scrolling only */
+            }
+            
+            #colorPalette.visible {
+                opacity: 1;
+                width: auto;
+            }
+            
+            /* All buttons - 20% smaller on mobile */
+            .color-swatch,
+            .glitch-btn,
+            .beat-btn,
+            .oramics-btn {
+                width: 26px;
+                height: 26px;
+                font-size: 14px;
+            }
+            
+            /* Dividers - horizontal in vertical layout */
+            .glitch-divider {
+                width: 26px;
+                height: 0.75pt;
+                margin: 4px 0;
+            }
+            
+            /* Two-column layout if palette is too long */
+            @supports (display: grid) {
+                #colorPalette {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 8px;
+                    padding: 12px;
+                    justify-items: center;
+                }
+                
+                /* Dividers span full width in grid */
+                .glitch-divider {
+                    grid-column: 1 / -1;
+                    width: 100%;
+                    height: 0.75pt;
+                    margin: 4px 0;
+                }
+            }
+        }
+        
+        /* Extra small screens - single column */
+        @media (max-width: 480px) {
+            #colorPalette {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .glitch-divider {
+                grid-column: 1 !important;
+            }
+        }
+        
+        /* Landscape mobile - different approach */
+        @media (max-width: 896px) and (orientation: landscape) {
+            #colorPalette {
+                max-height: calc(100vh - 60px);
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .color-swatch,
+            .glitch-btn,
+            .beat-btn,
+            .oramics-btn {
+                width: 26px;
+                height: 26px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -649,6 +795,33 @@
                 division: 4.0,     // Plays every whole note (once per bar)
                 interval: null,
                 description: 'Whole notes - once per bar'
+            },
+            // Fast Shaker = Sixteenth notes (4x faster than kick - very quick, light)
+            shaker: { 
+                active: false, 
+                name: 'Shaker', 
+                icon: '⋮', 
+                division: 0.25,    // Plays every sixteenth note (4x per beat)
+                interval: null,
+                description: 'Sixteenth notes - fast ambient texture'
+            },
+            // Slow Tom = Half notes (every 2 beats - deep, mellow)
+            tom: { 
+                active: false, 
+                name: 'Tom', 
+                icon: '○', 
+                division: 2.0,     // Plays every half note
+                interval: null,
+                description: 'Half notes - slow, deep toms'
+            },
+            // Ambient Click = Dotted quarter notes (syncopated rhythm - subtle)
+            click: { 
+                active: false, 
+                name: 'Click', 
+                icon: '·', 
+                division: 1.5,     // Plays every dotted quarter (1.5 beats)
+                interval: null,
+                description: 'Dotted quarters - subtle syncopation'
             }
         };
 
@@ -706,12 +879,12 @@
                 icon: '⧈', // Glitch/repeat icon
                 description: 'Glitchy repetitions and rhythmic freezes'
             },
-            polyrhythm: {
-                active: false,
-                name: 'Polyrhythm',
-                icon: '◈', // Multiple rhythm icon
-                description: 'Multiple overlapping rhythm layers'
-            }
+        polyrhythm: {
+            active: false,
+            name: 'Polyrhythm',
+            icon: '◈', // Multiple rhythm icon
+            description: 'Multiple overlapping rhythm layers'
+        }
         };
 
         function initColorPalette() {
@@ -896,7 +1069,10 @@
                 kick: { x: 0.5, y: 0.2 },    // Bottom center
                 hihat: { x: 0.8, y: 0.8 },   // Top right
                 snare: { x: 0.5, y: 0.5 },   // Center
-                pulse: { x: 0.2, y: 0.8 }    // Top left
+                pulse: { x: 0.2, y: 0.8 },   // Top left
+                shaker: { x: 0.8, y: 0.5 },  // Right center (fast shaker)
+                tom: { x: 0.2, y: 0.3 },     // Bottom left (slow tom)
+                click: { x: 0.65, y: 0.7 }   // Top right-center (ambient click)
             };
             
             const pos = positions[key];
@@ -915,7 +1091,13 @@
             gl.uniform2f(gl.getUniformLocation(splatProgram, 'point'), splatX, splatY);
             
             const angle = Math.random() * Math.PI * 2;
-            const force = key === 'kick' ? 20.0 : key === 'snare' ? 15.0 : key === 'hihat' ? 8.0 : 12.0;
+            const force = key === 'kick' ? 20.0 : 
+                         key === 'snare' ? 15.0 : 
+                         key === 'hihat' ? 8.0 : 
+                         key === 'tom' ? 12.0 :      // Medium force for tom
+                         key === 'shaker' ? 4.0 :    // Very light for fast shaker
+                         key === 'click' ? 5.0 :     // Light for ambient click
+                         12.0;                        // Default for pulse
             
             gl.uniform3f(gl.getUniformLocation(splatProgram, 'color'),
                 Math.cos(angle) * force,
@@ -923,7 +1105,12 @@
                 0.0
             );
             gl.uniform1f(gl.getUniformLocation(splatProgram, 'radius'),
-                key === 'kick' ? 0.015 : key === 'pulse' ? 0.012 : 0.008
+                key === 'kick' ? 0.015 :    // Large kick
+                key === 'pulse' ? 0.012 :   // Medium pulse
+                key === 'tom' ? 0.010 :     // Medium tom
+                key === 'shaker' ? 0.005 :  // Tiny shaker
+                key === 'click' ? 0.006 :   // Small click
+                0.008                        // Default (hihat, snare)
             );
             
             gl.activeTexture(gl.TEXTURE0);
@@ -1059,6 +1246,84 @@
                 env.connect(masterGain);
                 osc.start(now);
                 osc.stop(now + 0.4);
+                
+            } else if (key === 'shaker') {
+                /*
+                 * FAST SHAKER:
+                 * - Very short, filtered noise for fast ambient texture
+                 * - High frequency, STRONGER and more audible
+                 * - Adds rhythmic shimmer that you can actually hear!
+                 */
+                const bufferSize = audioContext.sampleRate * 0.03;  // Slightly longer (30ms)
+                const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = (Math.random() * 2 - 1) * 0.7;  // Much louder noise
+                }
+                
+                const noise = audioContext.createBufferSource();
+                noise.buffer = buffer;
+                
+                const filter = audioContext.createBiquadFilter();
+                filter.type = 'highpass';  // Changed to highpass for more presence
+                filter.frequency.value = 4000;  // Slightly lower for more body
+                filter.Q.value = 1;
+                
+                const env = audioContext.createGain();
+                env.gain.value = 0.25;  // Much louder! 3x stronger
+                env.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+                
+                noise.connect(filter);
+                filter.connect(env);
+                env.connect(masterGain);  // Direct to master for clarity
+                env.connect(convolver);   // Also with reverb
+                noise.start(now);
+                
+            } else if (key === 'tom') {
+                /*
+                 * SLOW TOM:
+                 * - Deep, mellow tom using the third note of the scale
+                 * - Low frequency for warmth, not too aggressive
+                 * - Ambient, subtle, with slow timing
+                 */
+                const thirdFreq = midiToFreq(musicalSettings.rootNote + 4 - 12);  // Third note, one octave down
+                
+                const osc = audioContext.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.value = thirdFreq;
+                osc.frequency.exponentialRampToValueAtTime(thirdFreq * 0.7, now + 0.2);  // Pitch slide down
+                
+                const env = audioContext.createGain();
+                env.gain.value = 0.12;  // Soft, ambient volume
+                env.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                
+                osc.connect(env);
+                env.connect(convolver);  // With reverb for mellowness
+                env.connect(masterGain);
+                osc.start(now);
+                osc.stop(now + 0.4);
+                
+            } else if (key === 'click') {
+                /*
+                 * AMBIENT CLICK:
+                 * - Very short, high-pitched click using the second scale degree
+                 * - Creates subtle syncopation with dotted quarter timing
+                 * - Adds interest without dominating the rhythm
+                 */
+                const secondFreq = midiToFreq(musicalSettings.rootNote + 2 + 12);  // Second note, one octave up
+                
+                const osc = audioContext.createOscillator();
+                osc.type = 'triangle';
+                osc.frequency.value = secondFreq;
+                
+                const env = audioContext.createGain();
+                env.gain.value = 0.06;  // Very quiet, just a subtle accent
+                env.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+                
+                osc.connect(env);
+                env.connect(convolver);  // With reverb for ambient quality
+                osc.start(now);
+                osc.stop(now + 0.03);
             }
         }
         
@@ -2074,10 +2339,11 @@
         /*
          * Pattern Sequencer: Paint zones on canvas that trigger notes
          * when fluid flows through them. Like a visual step sequencer!
+         * EXTREME MODE: Much faster, more sensitive, louder!
          */
         let sequencerZones = []; // Array of {x, y, color, lastTriggerTime}
-        const ZONE_TRIGGER_COOLDOWN = 400; // ms between triggers (faster retriggering!)
-        const ZONE_DETECTION_RADIUS = 0.08; // How close fluid needs to be (wider detection!)
+        const ZONE_TRIGGER_COOLDOWN = 150; // ms between triggers (MUCH faster retriggering!)
+        const ZONE_DETECTION_RADIUS = 0.15; // How close fluid needs to be (WIDER detection!)
 
         // ===== GESTURE DRONES =====
         /*
@@ -2342,6 +2608,7 @@
         
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
+            isMouseDown = true; // Set for sustained interactions
             const rect = canvas.getBoundingClientRect();
             const clickX = e.touches[0].clientX / rect.width;
             const clickY = 1.0 - e.touches[0].clientY / rect.height;
@@ -2350,6 +2617,37 @@
             
             if (audioEnabled) {
                 createSplashSound(clickX, clickY);
+            }
+
+            // Pattern Sequencer: Mark this position as a trigger zone
+            if (oramicsEffects.patternSequencer.active) {
+                sequencerZones.push({
+                    x: clickX,
+                    y: clickY,
+                    color: currentColor,
+                    lastTriggerTime: 0 // Never triggered yet
+                });
+                console.log('⊞ Sequencer zone added at', clickX.toFixed(2), clickY.toFixed(2), currentColor);
+            }
+
+            // Gesture Drones: Start tracking for sustained gesture
+            if (oramicsEffects.gestureDrones.active) {
+                droneStartTime = Date.now();
+                
+                // Check periodically if gesture is sustained long enough
+                const checkDroneActivation = setInterval(() => {
+                    if (!isMouseDown) {
+                        clearInterval(checkDroneActivation);
+                        return;
+                    }
+
+                    const sustainedTime = Date.now() - droneStartTime;
+                    if (sustainedTime >= DRONE_ACTIVATION_TIME) {
+                        // Create drone!
+                        createDrone(currentColor, { x: clickX, y: clickY });
+                        clearInterval(checkDroneActivation);
+                    }
+                }, 100); // Check every 100ms
             }
         }, { passive: false });
 
@@ -2403,6 +2701,19 @@
             isMouseDown = false;
             droneStartTime = 0; // Reset if mouse leaves canvas
         });
+
+        // ===== TOUCH EQUIVALENTS FOR SUSTAINED INTERACTIONS =====
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            isMouseDown = false;
+            droneStartTime = 0; // Reset drone timer
+        }, { passive: false });
+
+        canvas.addEventListener('touchcancel', (e) => {
+            e.preventDefault();
+            isMouseDown = false;
+            droneStartTime = 0; // Reset if touch is cancelled
+        }, { passive: false });
 
         function bindFramebuffer(target) {
             gl.bindFramebuffer(gl.FRAMEBUFFER, target.fbo);
@@ -3294,22 +3605,23 @@
             if (oramicsEffects.drawnWaveforms.active && visualWaveformBuffer) {
                 try {
                     // Use visual data as Fourier coefficients
-                    // More visual data = richer harmonic content
-                    const harmonicCount = Math.min(32, visualWaveformBuffer.length);
+                    // EXTREME MODE: More harmonics, stronger visual influence!
+                    const harmonicCount = Math.min(64, visualWaveformBuffer.length); // 2x more harmonics!
                     const real = new Float32Array(harmonicCount);
                     const imag = new Float32Array(harmonicCount);
                     
-                    // Map visual brightness to harmonic amplitudes
+                    // Map visual brightness to harmonic amplitudes - EXTREME!
                     for (let i = 0; i < harmonicCount; i++) {
                         const visualValue = visualWaveformBuffer[Math.floor((i / harmonicCount) * visualWaveformBuffer.length)];
-                        // MUCH more dramatic visual influence - paintings directly shape sound!
-                        real[i] = visualValue * 0.9; // Cosine component (nearly 2x stronger!)
-                        imag[i] = visualValue * 0.9; // Sine component (nearly 2x stronger!)
+                        // EXTREME: Even stronger visual influence with added harmonics
+                        const harmonicBoost = 1.0 + (i * 0.02); // Higher harmonics get boosted more
+                        real[i] = visualValue * 1.2 * harmonicBoost; // MUCH stronger!
+                        imag[i] = visualValue * 1.2 * harmonicBoost; // MUCH stronger!
                     }
                     
                     const periodicWave = audioContext.createPeriodicWave(real, imag);
                     osc.setPeriodicWave(periodicWave);
-                    console.log('✓ Visual waveform applied to oscillator');
+                    console.log('✓ EXTREME Visual waveform applied - 64 harmonics!');
                 } catch (e) {
                     console.log('✗ Could not set visual waveform:', e);
                 }
@@ -4444,6 +4756,10 @@
             // Clear sequencer zones
             sequencerZones = [];
             
+            // Clear all polyrhythm timers
+            polyrhythmTimers.forEach(timer => clearTimeout(timer));
+            polyrhythmTimers = [];
+            
             // Close audio context if it exists
             if (audioContext && audioContext.state !== 'closed') {
                 try {
@@ -5061,14 +5377,15 @@
                         const velocityMagnitude = Math.sqrt(vx * vx + vy * vy);
                         
                         // If fluid is flowing through this zone, trigger a note!
-                        if (velocityMagnitude > 0.03) { // Lower threshold = more sensitive triggering!
+                        if (velocityMagnitude > 0.01) { // MUCH lower threshold = SUPER sensitive triggering!
                             // Check which mode is active
+                            // EXTREME: Much louder triggering!
                             if (oramicsEffects.textureMode2.active) {
-                                triggerTextureSound2(zone.x, zone.y, 0.2);
+                                triggerTextureSound2(zone.x, zone.y, 0.5); // 2.5x louder!
                             } else if (oramicsEffects.textureMode.active) {
-                                triggerTextureSound(zone.x, zone.y, 0.2);
+                                triggerTextureSound(zone.x, zone.y, 0.5); // 2.5x louder!
                             } else {
-                                triggerColorVoice(zone.color, zone.x, zone.y, 0.2);
+                                triggerColorVoice(zone.color, zone.x, zone.y, 0.5); // 2.5x louder!
                             }
                             zone.lastTriggerTime = now;
                             const modeText = oramicsEffects.textureMode2.active ? 'texture2' : 
