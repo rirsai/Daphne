@@ -2612,10 +2612,19 @@
             e.preventDefault();
             if (e.touches.length === 0) return; // Safety check
             
+            // iOS: Resume audio context if suspended (critical for iOS)
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume().then(() => {
+                    console.log('✓ Audio resumed on touch');
+                });
+            }
+            
             isMouseDown = true; // Set for sustained interactions
             const rect = canvas.getBoundingClientRect();
             const clickX = e.touches[0].clientX / rect.width;
             const clickY = 1.0 - e.touches[0].clientY / rect.height;
+            
+            console.log('👆 Touch start:', clickX.toFixed(2), clickY.toFixed(2));
             
             pendingClicks.push({ x: clickX, y: clickY });
             
@@ -2736,7 +2745,16 @@
         let lastColorIntensity = 0;
         
         function initAudio() {
+            // iOS-specific: Use webkit prefix and handle suspended state
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // iOS CRITICAL: Audio context starts in 'suspended' state on iOS
+            // Must explicitly resume it after user interaction
+            if (audioContext.state === 'suspended') {
+                audioContext.resume().then(() => {
+                    console.log('✓ Audio context resumed on iOS');
+                });
+            }
             
             masterGain = audioContext.createGain();
             masterGain.gain.value = 0.3;
@@ -4807,11 +4825,14 @@
             
             if (toggleBtn) {
                 toggleBtn.addEventListener('click', function() {
+                    console.log('🔘 Sound button clicked');
                     if (!audioEnabled) {
                         initAudio();
+                        audioEnabled = true;
                         this.textContent = 'Sound Off';
                         audioPanel.classList.add('expanded');
                         colorPalette.classList.add('visible');
+                        console.log('✓ Audio initialized, state:', audioContext ? audioContext.state : 'no context');
                     } else {
                         audioEnabled = false;
                         if (audioContext) audioContext.close();
