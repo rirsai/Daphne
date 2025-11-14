@@ -2634,16 +2634,23 @@
             }
         }, { passive: false });
         
-        // TEST: Simple alert to verify touch events work
+        // TEST: Comprehensive diagnostic on first touch
         let touchTestDone = false;
         
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
             
-            // ONE-TIME TEST: Show alert on first touch to verify events work
+            // ONE-TIME TEST: Show diagnostic info on first touch
             if (!touchTestDone) {
                 touchTestDone = true;
-                alert('Touch detected! X:' + e.touches[0].clientX + ' Y:' + e.touches[0].clientY);
+                const diagnostics = 
+                    'Touch detected!\n' +
+                    'Audio enabled: ' + audioEnabled + '\n' +
+                    'Audio context: ' + (audioContext ? audioContext.state : 'null') + '\n' +
+                    'Selected color: ' + selectedColorIndex + '\n' +
+                    'GL context: ' + (gl ? 'OK' : 'MISSING') + '\n' +
+                    'Render running: ' + (renderFrameCount > 0);
+                alert(diagnostics);
             }
             
             if (e.touches.length === 0) return; // Safety check
@@ -2664,8 +2671,16 @@
             
             pendingClicks.push({ x: clickX, y: clickY });
             
+            // DIAGNOSTIC: Visual confirmation of touch
+            canvas.style.border = '5px solid red';
+            setTimeout(() => canvas.style.border = 'none', 500);
+            console.log('📍 Added pending click - Total pending:', pendingClicks.length);
+            
             if (audioEnabled) {
                 createSplashSound(clickX, clickY);
+                console.log('🔊 createSplashSound called');
+            } else {
+                console.log('⚠️ Audio NOT enabled - select color first!');
             }
 
             // Pattern Sequencer: Mark this position as a trigger zone
