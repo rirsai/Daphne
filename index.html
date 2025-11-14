@@ -2821,7 +2821,7 @@
         let echoTone, echoGain, echoFilter;
         let lastColorIntensity = 0;
         
-        function initAudio() {
+        async function initAudio() {
             console.log('🎵 initAudio() called');
             
             // iOS-specific: Use webkit prefix and handle suspended state
@@ -2834,16 +2834,26 @@
                 return;
             }
             
-            // iOS CRITICAL: Audio context starts in 'suspended' state on iOS
-            // Must explicitly resume it after user interaction
+            // iOS CRITICAL: MUST await resume() to properly unlock audio
+            console.log('⏸ Audio context state:', audioContext.state);
             if (audioContext.state === 'suspended') {
-                console.log('⏸ Audio context suspended, resuming...');
-                audioContext.resume().then(() => {
-                    console.log('✓ Audio context resumed, state:', audioContext.state);
-                }).catch((e) => {
-                    console.error('❌ Failed to resume:', e);
-                });
+                console.log('⏸ Resuming audio context...');
+                try {
+                    await audioContext.resume();
+                    console.log('✓ Audio resumed! State now:', audioContext.state);
+                } catch (e) {
+                    console.error('❌ Resume failed:', e);
+                    alert('Failed to resume audio: ' + e.message);
+                    return;
+                }
             }
+            
+            if (audioContext.state !== 'running') {
+                alert('⚠️ Audio state is: ' + audioContext.state + '\nNot running! Check Safari settings.');
+                return;
+            }
+            
+            console.log('✅ Audio context running!');
             
             masterGain = audioContext.createGain();
             masterGain.gain.value = 0.3;
@@ -4915,12 +4925,12 @@
             
             if (toggleBtn) {
                 // iOS: Add BOTH click AND touchstart for better compatibility
-                const handleToggle = function() {
+                const handleToggle = async function() {
                     console.log('🔘 Sound button activated');
                     if (!audioEnabled) {
                         try {
                             console.log('🎵 Calling initAudio()...');
-                            initAudio();
+                            await initAudio();
                             // Don't set audioEnabled here - let initAudio() set it
                             this.textContent = 'Sound Off';
                             audioPanel.classList.add('expanded');
