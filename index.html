@@ -2666,26 +2666,40 @@
             
             pendingClicks.push({ x: clickX, y: clickY });
             
-            // DIAGNOSTIC: Visual confirmation of touch
-            canvas.style.border = '5px solid red';
-            setTimeout(() => canvas.style.border = 'none', 500);
+            // DIAGNOSTIC: SUPER OBVIOUS visual confirmation
+            canvas.style.border = '10px solid lime';
+            canvas.style.backgroundColor = 'rgba(255,0,0,0.3)'; // Red tint
+            setTimeout(() => {
+                canvas.style.border = 'none';
+                canvas.style.backgroundColor = 'transparent';
+            }, 1000);
             console.log('📍 Added pending click - Total pending:', pendingClicks.length);
+            console.log('📍 Position:', clickX.toFixed(3), clickY.toFixed(3));
             
             // SUPER SIMPLE TEST: Play a basic tone directly (bypasses all complex logic)
+            // This tone should be LOUD and OBVIOUS
             if (audioContext && audioContext.state === 'running') {
                 try {
                     const testOsc = audioContext.createOscillator();
                     const testGain = audioContext.createGain();
-                    testOsc.frequency.value = 440; // A note
-                    testGain.gain.value = 0.3;
+                    testOsc.frequency.value = 880; // High A note (more noticeable)
+                    testGain.gain.value = 0.5; // LOUDER
                     testOsc.connect(testGain);
                     testGain.connect(audioContext.destination);
                     testOsc.start(audioContext.currentTime);
-                    testOsc.stop(audioContext.currentTime + 0.2);
-                    console.log('🎵 Test tone played!');
+                    testOsc.stop(audioContext.currentTime + 0.5); // Longer beep
+                    console.log('🎵 Test tone played at 880Hz for 0.5s!');
+                    
+                    // Also try to use masterGain if it exists
+                    if (masterGain) {
+                        console.log('✓ masterGain exists, value:', masterGain.gain.value);
+                    }
                 } catch (e) {
                     console.log('❌ Test tone failed:', e);
+                    alert('Audio error: ' + e.message);
                 }
+            } else {
+                alert('Audio context problem! State: ' + (audioContext ? audioContext.state : 'null'));
             }
             
             if (audioEnabled) {
