@@ -2621,16 +2621,11 @@
                 mouseX = e.touches[0].clientX / rect.width;
                 mouseY = 1.0 - e.touches[0].clientY / rect.height;
                 
-                // Force immediate visual update for iOS
-                pendingClicks.push({ x: mouseX, y: mouseY });
+                // REMOVED: Don't add to pendingClicks on every touchmove
+                // touchmove is like mousemove (hover) NOT like clicks!
+                // Let the render loop handle continuous painting via deltaX/deltaY
                 
-                // Trigger sound on touch move (throttled to avoid overload)
-                const now = Date.now();
-                if (audioEnabled && selectedColorIndex >= 0 && (now - lastTouchSoundTime) > 50) {
-                    triggerColorVoice(selectedColorIndex, mouseX, mouseY, 0.3);
-                    lastTouchSoundTime = now;
-                    console.log('🔊 Touch sound triggered');
-                }
+                // Removed sound triggering here too - let render loop handle it
             }
         }, { passive: false });
         
@@ -4472,7 +4467,8 @@
             mainFilter.type = 'lowpass';
             const baseFilterFreq = baseFreq * (3 + complexity * 2 + velocityCurve * 2 + turbulenceLevel * 1.5);
             const horizontalFilterBoost = 1 + (horizontalPos * 2);
-            mainFilter.frequency.value = baseFilterFreq * horizontalFilterBoost + velocityCurve * 1200;
+            // CLAMP filter frequency to valid range (20Hz - 20000Hz to be safe)
+            mainFilter.frequency.value = Math.max(20, Math.min(20000, baseFilterFreq * horizontalFilterBoost + velocityCurve * 1200));
             mainFilter.Q.value = 0.7 + complexity * 0.5 + turbulenceLevel * 0.8 + (horizontalPos * 0.5);
             
             const dryGain = audioContext.createGain();
