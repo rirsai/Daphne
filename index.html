@@ -398,21 +398,21 @@
         #aboutContainer {
             position: fixed;
             top: 0;
-            right: 0;
+            right: -66.666vw; /* Start with panel off-screen to the right */
             height: 100vh;
+            width: calc(66.666vw + 50px); /* Panel width + button width */
             z-index: 1000;
-            transform: translateX(0);
-            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: right 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         #aboutContainer.open {
-            transform: translateX(calc(-66.666vw + 50px)); /* Slide left, button stays visible */
+            right: 0; /* Slide in so button is at right edge, panel is visible */
         }
         
         #aboutPanel {
             position: absolute;
             top: 0;
-            right: 50px; /* Positioned to the left of the button */
+            right: 0; /* Panel is on the right side */
             width: 66.666vw;
             height: 100vh;
             background: rgba(0, 0, 0, 0.95);
@@ -424,7 +424,7 @@
         #aboutToggle {
             position: absolute;
             top: 30px;
-            right: 0;
+            left: 0; /* Button is on the left side of container */
             width: 50px;
             height: 120px;
             background: rgba(0, 0, 0, 0.9);
@@ -503,12 +503,12 @@
         
         /* Mobile adjustments for about section */
         @media (max-width: 768px) {
-            #aboutContainer.open {
-                transform: translateX(calc(-85vw + 40px)); /* Mobile: 85% width */
+            #aboutContainer {
+                right: -85vw; /* Start off-screen on mobile */
+                width: calc(85vw + 40px); /* Panel + button width */
             }
             
             #aboutPanel {
-                right: 40px;
                 width: 85vw;
             }
             
