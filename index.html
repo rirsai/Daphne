@@ -483,22 +483,28 @@
             {
                 color: { r: 0.3, g: 0.4, b: 0.9 },
                 hex: '#4D5DE8',
-                persistence: 1.0,
+                persistence: 1.2,  // Long visual fade like bells ringing
                 diffusion: 0.25,
-                scale: 'minor',  // Blue = Minor (emotional, deep, melancholic)
+                scale: 'pentatonic',  // Blue = Pentatonic (magical bells sound good in pentatonic)
                 sound: {
-                    waveform: 'sine',
-                    baseFreqMultiplier: 0.5,
-                    harmonics: 3,
-                    attack: 0.3,
-                    filterType: 'lowpass',
-                    filterFreq: 500,
+                    waveform: 'sine',  // Pure sine for bell-like clarity
+                    baseFreqMultiplier: 2.0,  // Higher register for bell sound
+                    harmonics: 12,  // Rich, inharmonic overtones (bells have many partials)
+                    attack: 0.01,  // Quick attack (bell strike)
+                    filterType: 'highpass',  // Let the bright overtones through
+                    filterFreq: 800,  // High filter for sparkle
                     filterQ: 2,
-                    reverbMix: 0.85,
-                    detune: 12,
-                    useModulation: true,
-                    modulationRate: 0.3,
-                    modulationDepth: 15
+                    reverbMix: 0.9,  // HUGE reverb for magical atmosphere
+                    detune: 8,
+                    // MAGICAL BELL CHARACTERISTICS
+                    isBell: true,  // Flag for special bell synthesis
+                    bellInharmonicity: 2.5,  // Non-integer harmonics (realistic bells)
+                    bellShimmer: true,  // Subtle pitch modulation (shimmering effect)
+                    shimmerRate: 4.5,  // Fast shimmer for magical quality
+                    shimmerDepth: 12,  // Moderate shimmer amount
+                    bellDecay: 4.0,  // Long decay like a large bell
+                    useSparkle: true,  // High frequency sparkle overtones
+                    sparkleAmount: 0.4
                 }
             },
             {
@@ -522,30 +528,25 @@
             {
                 color: { r: 0.2, g: 0.8, b: 0.4 },
                 hex: '#33CC66',
-                persistence: 0.8,
+                persistence: 0.65,
                 diffusion: 0.35,
-                scale: 'pentatonic',  // Green = Pentatonic (natural, balanced, bamboo-like)
+                scale: 'major',  // Green = Major scale (piano works well with major)
                 sound: {
-                    waveform: 'triangle',
-                    baseFreqMultiplier: 2.5,
-                    harmonics: 3,
-                    attack: 0.001,  // Instant like bamboo strike
-                    filterType: 'bandpass',
-                    filterFreq: 1800,
-                    filterQ: 6,
-                    reverbMix: 0.95,  // Huge reverb for forest atmosphere
-                    detune: 3,
-                    // BAMBOO WIND CHIMES - hollow resonant tubes with multiple pitches
-                    useBamboo: true,
-                    bambooTubes: [1.0, 1.33, 1.5, 2.0, 2.67, 3.0, 4.0],  // Pentatonic-ish tuning
-                    bambooDecay: 0.4,  // Long resonance
-                    bambooVolume: 0.9,
-                    useHollowResonance: true,  // Hollow tube effect
-                    resonanceFreq: 0.75,  // Sub-frequency for hollow sound
-                    useWindNoise: true,  // Air rushing through bamboo
-                    windIntensity: 0.4,
-                    useMetallicShimmer: true,  // High metallic overtones
-                    shimmerCount: 8
+                    waveform: 'triangle',  // Base waveform for piano-like tone
+                    baseFreqMultiplier: 1.0,  // Normal pitch range
+                    harmonics: 8,  // Rich harmonic content like a piano
+                    attack: 0.005,  // Very fast attack (piano hammer strike)
+                    filterType: 'lowpass',
+                    filterFreq: 3500,  // Bright but not harsh
+                    filterQ: 1.5,
+                    reverbMix: 0.35,  // Moderate reverb (like a concert hall)
+                    detune: 3,  // Slight detune for richness (piano strings are slightly detuned)
+                    // PIANO CHARACTERISTICS
+                    isPiano: true,  // Flag to trigger special piano envelope
+                    pianoDecay: 1.5,  // Piano notes decay relatively quickly
+                    pianoHarmonicDecay: true,  // Higher harmonics decay faster (realistic piano)
+                    useSubtleChorus: true,  // Slight chorus effect (multiple piano strings per note)
+                    chorusDepth: 0.015
                 }
             },
             {
@@ -1057,6 +1058,131 @@
                 btn.addEventListener('click', () => toggleOramics(key, btn));
                 palette.appendChild(btn);
             });
+            
+            // Add loop recording section
+            const loopDivider = document.createElement('div');
+            loopDivider.className = 'glitch-divider';
+            palette.appendChild(loopDivider);
+            
+            // Loop Record button
+            const loopBtn = document.createElement('button');
+            loopBtn.id = 'loopRecordBtn';
+            loopBtn.className = 'beat-btn';
+            loopBtn.innerHTML = '⭕';  // Circle for record
+            loopBtn.title = 'Loop Record - Record and loop your painting';
+            loopBtn.addEventListener('click', toggleLoopRecording);
+            palette.appendChild(loopBtn);
+            
+            // Loop Clear button
+            const clearBtn = document.createElement('button');
+            clearBtn.id = 'loopClearBtn';
+            clearBtn.className = 'beat-btn';
+            clearBtn.innerHTML = '✖';
+            clearBtn.title = 'Clear Loop';
+            clearBtn.addEventListener('click', clearLoop);
+            palette.appendChild(clearBtn);
+        }
+        
+        // ===== LOOP RECORDING FUNCTIONS =====
+        
+        function toggleLoopRecording() {
+            const btn = document.getElementById('loopRecordBtn');
+            
+            if (!isRecording && !isLoopPlaying) {
+                // Start recording
+                isRecording = true;
+                recordedLoop = [];
+                recordingStartTime = Date.now();
+                btn.classList.add('active');
+                btn.innerHTML = '⏺';  // Solid record dot
+                console.log('🔴 Started loop recording');
+            } else if (isRecording) {
+                // Stop recording and start playback
+                isRecording = false;
+                loopDuration = (Date.now() - recordingStartTime) / 1000;  // in seconds
+                btn.innerHTML = '▶';  // Play symbol
+                
+                if (recordedLoop.length > 0) {
+                    startLoopPlayback();
+                    console.log(`✓ Loop recorded: ${recordedLoop.length} events, ${loopDuration.toFixed(2)}s`);
+                } else {
+                    btn.classList.remove('active');
+                    btn.innerHTML = '⭕';
+                    console.log('⚠️ No events recorded');
+                }
+            }
+        }
+        
+        function startLoopPlayback() {
+            if (recordedLoop.length === 0 || !audioEnabled) return;
+            
+            isLoopPlaying = true;
+            let loopStartTime = Date.now() / 1000;
+            
+            // Schedule all events in the loop
+            function playLoop() {
+                const now = Date.now() / 1000;
+                const elapsedTime = (now - loopStartTime) % loopDuration;
+                
+                // Play events that should fire in this iteration
+                recordedLoop.forEach(event => {
+                    const eventTime = event.time;
+                    const timeDiff = Math.abs(elapsedTime - eventTime);
+                    
+                    // Trigger events within a 50ms window
+                    if (timeDiff < 0.05) {
+                        // Restore color and trigger sound
+                        const oldColor = selectedColorIndex;
+                        selectedColorIndex = event.colorIndex;
+                        
+                        if (oramicsEffects.textureMode2.active) {
+                            triggerTextureSound2(event.x, event.y, event.intensity);
+                        } else if (oramicsEffects.textureMode.active) {
+                            triggerTextureSound(event.x, event.y, event.intensity);
+                        } else if (selectedColorIndex >= 0 && selectedColorIndex < colorVoices.length) {
+                            const wrappedTrigger = () => {
+                                triggerColorVoice(selectedColorIndex, event.x, event.y, event.intensity);
+                            };
+                            
+                            // Apply rhythmic effects if active
+                            if (oramicsEffects.stutter.active) {
+                                processStutter(event.x, event.y, event.intensity, wrappedTrigger);
+                            } else if (oramicsEffects.polyrhythm.active) {
+                                processPolyrhythm(event.x, event.y, event.intensity, wrappedTrigger);
+                            } else {
+                                wrappedTrigger();
+                            }
+                        }
+                        
+                        // Restore previous color
+                        selectedColorIndex = oldColor;
+                    }
+                });
+            }
+            
+            // Play loop every 50ms
+            loopPlaybackInterval = setInterval(playLoop, 50);
+        }
+        
+        function stopLoopPlayback() {
+            isLoopPlaying = false;
+            if (loopPlaybackInterval) {
+                clearInterval(loopPlaybackInterval);
+                loopPlaybackInterval = null;
+            }
+        }
+        
+        function clearLoop() {
+            stopLoopPlayback();
+            isRecording = false;
+            recordedLoop = [];
+            loopDuration = 0;
+            
+            const btn = document.getElementById('loopRecordBtn');
+            btn.classList.remove('active');
+            btn.innerHTML = '⭕';
+            
+            console.log('✓ Loop cleared');
         }
         
         function toggleOramics(key, btn) {
@@ -2795,6 +2921,14 @@
         let echoTone, echoGain, echoFilter;
         let lastColorIntensity = 0;
         
+        // ===== LOOP RECORDING SYSTEM =====
+        let isRecording = false;
+        let recordedLoop = [];  // Array of {time, x, y, colorIndex, intensity}
+        let recordingStartTime = 0;
+        let loopDuration = 0;
+        let loopPlaybackInterval = null;
+        let isLoopPlaying = false;
+        
         async function initAudio() {
             console.log('🎵 initAudio() called');
             
@@ -3612,6 +3746,14 @@
             
             let baseFreq = quantizePitch(y) * sound.baseFreqMultiplier;
             
+            // ===== X-AXIS OCTAVE CONTROL =====
+            // Left (x=0) = -1 octave (half frequency)
+            // Center (x=0.5) = normal octave
+            // Right (x=1) = +1 octave (double frequency)
+            const octaveShift = (x - 0.5) * 2; // Maps 0-1 to -1 to +1
+            const octaveMultiplier = Math.pow(2, octaveShift); // 2^-1 = 0.5, 2^0 = 1, 2^1 = 2
+            baseFreq *= octaveMultiplier;
+            
             // Apply arpeggiator if active
             baseFreq = applyArpeggiator(baseFreq);
             const visualFadeTime = 5.0 * voice.persistence;
@@ -3688,6 +3830,62 @@
             const osc = audioContext.createOscillator();
             osc.type = sound.waveform;
             osc.frequency.value = baseFreq;
+            
+            // ===== PIANO SYNTHESIS =====
+            let pianoHarmonics = [];
+            if (sound.isPiano) {
+                // Piano uses multiple harmonics with individual decay rates
+                // Higher harmonics decay faster (realistic piano physics)
+                for (let h = 2; h <= 6; h++) {
+                    const harmOsc = audioContext.createOscillator();
+                    harmOsc.type = 'sine';
+                    harmOsc.frequency.value = baseFreq * h;
+                    
+                    const harmEnv = audioContext.createGain();
+                    harmEnv.gain.value = 0;
+                    const harmVolume = baseVolume / (h * h); // Higher harmonics are quieter
+                    harmEnv.gain.linearRampToValueAtTime(harmVolume, now + 0.005);
+                    // Higher harmonics decay faster
+                    const harmDecay = sound.pianoDecay / (1 + (h - 1) * 0.3);
+                    harmEnv.gain.exponentialRampToValueAtTime(0.001, now + harmDecay);
+                    
+                    pianoHarmonics.push({ osc: harmOsc, env: harmEnv });
+                }
+            }
+            
+            // ===== BELL SYNTHESIS =====
+            let bellPartials = [];
+            if (sound.isBell) {
+                // Bells have inharmonic partials (not integer multiples of fundamental)
+                // Common bell ratios: 2.0, 3.0, 4.4, 5.4 (not 2, 3, 4, 5)
+                const bellRatios = [1.0, 2.0, 2.8, 4.1, 5.4, 6.8, 8.2];
+                
+                for (let i = 0; i < bellRatios.length; i++) {
+                    const partialOsc = audioContext.createOscillator();
+                    partialOsc.type = 'sine';
+                    partialOsc.frequency.value = baseFreq * bellRatios[i];
+                    
+                    // Add shimmer (vibrato) to each partial
+                    if (sound.bellShimmer) {
+                        const shimmerLFO = audioContext.createOscillator();
+                        shimmerLFO.frequency.value = sound.shimmerRate + Math.random() * 0.5;
+                        const shimmerGain = audioContext.createGain();
+                        shimmerGain.gain.value = sound.shimmerDepth;
+                        shimmerLFO.connect(shimmerGain);
+                        shimmerGain.connect(partialOsc.frequency);
+                        shimmerLFO.start(now);
+                        shimmerLFO.stop(now + sound.bellDecay);
+                    }
+                    
+                    const partialEnv = audioContext.createGain();
+                    partialEnv.gain.value = 0;
+                    const partialVolume = baseVolume / (i + 1); // Higher partials are quieter
+                    partialEnv.gain.linearRampToValueAtTime(partialVolume, now + 0.01);
+                    partialEnv.gain.exponentialRampToValueAtTime(0.001, now + sound.bellDecay);
+                    
+                    bellPartials.push({ osc: partialOsc, env: partialEnv });
+                }
+            }
             
             // ===== DRAWN WAVEFORMS (ORAMICS) =====
             /*
@@ -4207,6 +4405,16 @@
             // Route harmonics to filter
             harmonics.forEach(h => h.env.connect(filter));
             
+            // Route piano harmonics to filter
+            if (sound.isPiano) {
+                pianoHarmonics.forEach(h => h.env.connect(filter));
+            }
+            
+            // Route bell partials to filter
+            if (sound.isBell) {
+                bellPartials.forEach(b => b.env.connect(filter));
+            }
+            
             // Route env through distortion if present (red), otherwise to filter
             if (waveshaper) {
                 env.connect(waveshaper);
@@ -4304,6 +4512,22 @@
                 h.osc.start(now);
                 h.osc.stop(now + duration);
             });
+            
+            // Start piano harmonics
+            if (sound.isPiano) {
+                pianoHarmonics.forEach(h => {
+                    h.osc.start(now);
+                    h.osc.stop(now + h.env.gain.value > 0 ? sound.pianoDecay : duration);
+                });
+            }
+            
+            // Start bell partials
+            if (sound.isBell) {
+                bellPartials.forEach(b => {
+                    b.osc.start(now);
+                    b.osc.stop(now + sound.bellDecay);
+                });
+            }
             
             crackleNodes.forEach(node => {
                 node.osc.start(now);
@@ -4854,6 +5078,11 @@
             polyrhythmTimers.forEach(timer => clearTimeout(timer));
             polyrhythmTimers = [];
             
+            // Stop and clear loop recording
+            stopLoopPlayback();
+            recordedLoop = [];
+            isRecording = false;
+            
             // Close audio context if it exists
             if (audioContext && audioContext.state !== 'closed') {
                 try {
@@ -5331,6 +5560,18 @@
                             triggerFunc = (x, y, intensity) => triggerTextureSound(x, y, intensity);
                         } else {
                             triggerFunc = (x, y, intensity) => triggerColorVoice(selectedColorIndex, x, y, intensity);
+                        }
+                        
+                        // ===== LOOP RECORDING: Capture events =====
+                        if (isRecording && selectedColorIndex >= 0) {
+                            const eventTime = (Date.now() - recordingStartTime) / 1000;  // time in seconds
+                            recordedLoop.push({
+                                time: eventTime,
+                                x: mouseX,
+                                y: mouseY,
+                                colorIndex: selectedColorIndex,
+                                intensity: lastColorIntensity
+                            });
                         }
                         
                         // Trigger main sound
