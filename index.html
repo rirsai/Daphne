@@ -2807,7 +2807,6 @@
                 console.log('✓ AudioContext created, state:', audioContext.state);
             } catch (e) {
                 console.error('❌ Failed to create AudioContext:', e);
-                alert('Cannot create audio context: ' + e.message);
                 return;
             }
             
@@ -2820,13 +2819,12 @@
                     console.log('✓ Audio resumed! State now:', audioContext.state);
                 } catch (e) {
                     console.error('❌ Resume failed:', e);
-                    alert('Failed to resume audio: ' + e.message);
                     return;
                 }
             }
             
             if (audioContext.state !== 'running') {
-                alert('⚠️ Audio state is: ' + audioContext.state + '\nNot running! Check Safari settings.');
+                console.error('⚠️ Audio state is:', audioContext.state, '- Not running!');
                 return;
             }
             
@@ -4925,19 +4923,14 @@
                                 }, 50);
                             }
                             
-                            // iOS CRITICAL: Show diagnostic
+                            // Diagnostic logging only (no more alerts!)
                             setTimeout(() => {
-                                if (audioContext) {
-                                    alert('Audio OK!\nState: ' + audioContext.state + '\nEnabled: ' + audioEnabled + '\nColor: ' + selectedColorIndex);
-                                } else {
-                                    alert('AUDIO FAILED!\nContext is null!');
-                                }
+                                console.log('✅ AUDIO READY - State:', audioContext ? audioContext.state : 'null', 'Enabled:', audioEnabled, 'Color:', selectedColorIndex);
                             }, 200);
                             
                             console.log('✓ Audio initialized, state:', audioContext ? audioContext.state : 'no context');
                         } catch (e) {
-                            alert('Audio init error: ' + e.message);
-                            console.error('Audio init failed:', e);
+                            console.error('❌ Audio init error:', e);
                         }
                     } else {
                         audioEnabled = false;
@@ -5127,9 +5120,15 @@
             }
             
             if (pendingClicks.length > 0) {
-                if (renderFrameCount % 60 === 0) { // Log once per second
-                    console.log('💦 Processing', pendingClicks.length, 'splats');
+                // ALWAYS log when processing splats for debugging
+                console.log('💦 Processing', pendingClicks.length, 'splats at frame', renderFrameCount);
+                
+                // Visual confirmation - flash the background briefly
+                if (pendingClicks.length > 0) {
+                    document.body.style.backgroundColor = 'rgba(0,255,0,0.1)';
+                    setTimeout(() => document.body.style.backgroundColor = '#000', 100);
                 }
+                
                 pendingClicks.forEach(click => {
                     // Velocity splash
                     gl.useProgram(splatProgram);
