@@ -2615,31 +2615,47 @@
         let lastTouchSoundTime = 0;
         
         let lastTouchMoveTime = 0;
+        let touchMoveCount = 0;
         
-        canvas.addEventListener('touchmove', (e) => {
+        // AGGRESSIVE touchmove handler
+        const handleTouchMove = (e) => {
+            touchMoveCount++;
+            console.log('🔥 TOUCHMOVE EVENT FIRED!', touchMoveCount);
+            
             e.preventDefault();
+            e.stopPropagation();
+            
             if (e.touches.length > 0) {
                 const rect = canvas.getBoundingClientRect();
                 const newX = e.touches[0].clientX / rect.width;
                 const newY = 1.0 - e.touches[0].clientY / rect.height;
                 
+                console.log('👉 Touch position:', newX.toFixed(3), newY.toFixed(3));
+                
                 // Update mouse position (for deltaX/deltaY in render loop)
                 mouseX = newX;
                 mouseY = newY;
                 
-                // Throttled splat injection (every 50ms) to avoid spam
-                const now = Date.now();
-                if (now - lastTouchMoveTime > 50) {
-                    pendingClicks.push({ x: mouseX, y: mouseY });
-                    lastTouchMoveTime = now;
-                    console.log('💧 Touch move splat added at', mouseX.toFixed(3), mouseY.toFixed(3), '- Total now:', pendingClicks.length);
-                    
-                    // FORCE visible feedback for iOS debugging
-                    document.body.style.backgroundColor = 'rgba(255,0,255,0.3)'; // Magenta flash
-                    setTimeout(() => document.body.style.backgroundColor = '#000', 200);
-                }
+                // ALWAYS add on touchmove for iOS (no throttling for now)
+                pendingClicks.push({ x: mouseX, y: mouseY });
+                console.log('💧 Splat added - Total:', pendingClicks.length);
+                
+                // FORCE visible feedback for iOS debugging
+                document.body.style.backgroundColor = 'rgba(255,0,255,0.5)'; // BRIGHT Magenta flash
+                setTimeout(() => document.body.style.backgroundColor = '#000', 300);
             }
+        };
+        
+        // Add touchmove listener to CANVAS
+        canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+        console.log('✓ touchmove listener added to canvas');
+        
+        // FALLBACK: Also add to document
+        document.addEventListener('touchmove', (e) => {
+            console.log('⚠️ DOCUMENT touchmove fired (canvas blocked?)');
+            handleTouchMove(e);
         }, { passive: false });
+        console.log('✓ touchmove FALLBACK added to document');
         
         // Diagnostic removed - audio working!
         
