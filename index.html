@@ -2614,89 +2614,46 @@
         });
 
         let lastTouchSoundTime = 0;
-        
         let lastTouchMoveTime = 0;
-        let touchMoveCount = 0;
         
-        // AGGRESSIVE touchmove handler
+        // Touch move handler for continuous painting
         const handleTouchMove = (e) => {
-            touchMoveCount++;
-            console.log('🔥 TOUCHMOVE EVENT FIRED!', touchMoveCount);
-            
             e.preventDefault();
-            e.stopPropagation();
             
             if (e.touches.length > 0) {
                 const rect = canvas.getBoundingClientRect();
                 const newX = e.touches[0].clientX / rect.width;
                 const newY = 1.0 - e.touches[0].clientY / rect.height;
                 
-                console.log('👉 Touch position:', newX.toFixed(3), newY.toFixed(3));
-                
-                // Update mouse position (for deltaX/deltaY in render loop)
                 mouseX = newX;
                 mouseY = newY;
                 
-                // ALWAYS add on touchmove for iOS (no throttling for now)
-                pendingClicks.push({ x: mouseX, y: mouseY });
-                console.log('💧 Splat added - Total:', pendingClicks.length);
-                
-                // FORCE visible feedback for iOS debugging
-                document.body.style.backgroundColor = 'rgba(255,0,255,0.5)'; // BRIGHT Magenta flash
-                setTimeout(() => document.body.style.backgroundColor = '#000', 300);
+                // Throttle splat injection to avoid overwhelming the renderer
+                const now = Date.now();
+                if (now - lastTouchMoveTime > 50) {
+                    pendingClicks.push({ x: mouseX, y: mouseY });
+                    lastTouchMoveTime = now;
+                }
             }
         };
         
-        // SIMPLE TEST: Just detect touchmove, any touch at all
-        let simpleTouchMoveCount = 0;
-        canvas.addEventListener('touchmove', (e) => {
-            simpleTouchMoveCount++;
-            console.log('🟣 SIMPLE touchmove #' + simpleTouchMoveCount);
-            // CYAN flash for ANY touchmove detection
-            document.body.style.backgroundColor = 'rgba(0,255,255,0.8)'; // CYAN
-            setTimeout(() => document.body.style.backgroundColor = '#000', 200);
-        }, { passive: false, capture: true }); // Use capture phase
-        
-        // Add touchmove listener to CANVAS
         canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-        console.log('✓ touchmove listener added to canvas');
-        
-        // FALLBACK: Also add to document
-        document.addEventListener('touchmove', (e) => {
-            console.log('⚠️ DOCUMENT touchmove fired (canvas blocked?)');
-            handleTouchMove(e);
-        }, { passive: false });
-        console.log('✓ touchmove FALLBACK added to document');
-        
-        // Diagnostic removed - audio working!
         
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            e.stopPropagation();
             
-            console.log('🟢 TOUCHSTART fired!');
-            
-            // VISUAL: Orange flash for touchstart
-            document.body.style.backgroundColor = 'rgba(255,165,0,0.7)'; // ORANGE
-            setTimeout(() => document.body.style.backgroundColor = '#000', 400);
-            
-            if (e.touches.length === 0) return; // Safety check
+            if (e.touches.length === 0) return;
             
             // iOS: Resume audio context if suspended (critical for iOS)
             if (audioContext && audioContext.state === 'suspended') {
-                audioContext.resume().then(() => {
-                    console.log('✓ Audio resumed on touch');
-                });
+                audioContext.resume();
             }
             
-            isMouseDown = true; // Set for sustained interactions
-            console.log('👆 isMouseDown = true');
+            isMouseDown = true;
             
             const rect = canvas.getBoundingClientRect();
             const clickX = e.touches[0].clientX / rect.width;
             const clickY = 1.0 - e.touches[0].clientY / rect.height;
-            
-            console.log('👆 Touch start:', clickX.toFixed(2), clickY.toFixed(2));
             
             pendingClicks.push({ x: clickX, y: clickY });
             
@@ -5166,15 +5123,6 @@
             }
             
             if (pendingClicks.length > 0) {
-                // ALWAYS log when processing splats for debugging
-                console.log('💦 Processing', pendingClicks.length, 'splats at frame', renderFrameCount);
-                
-                // Visual confirmation - flash the background briefly
-                if (pendingClicks.length > 0) {
-                    document.body.style.backgroundColor = 'rgba(0,255,0,0.1)';
-                    setTimeout(() => document.body.style.backgroundColor = '#000', 100);
-                }
-                
                 pendingClicks.forEach(click => {
                     // Velocity splash
                     gl.useProgram(splatProgram);
