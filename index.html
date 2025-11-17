@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Daphne - Oramics Fluid Synth</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -70,6 +73,7 @@
             background: transparent;
             border: none;
             color: white;
+            font-family: 'IBM Plex Mono', 'Courier New', monospace;
             font-size: 13px;
             cursor: pointer;
             font-weight: 600;
@@ -401,7 +405,7 @@
             background: rgba(0, 0, 0, 0.9);
             border: none;
             color: white;
-            font-family: 'Courier New', monospace;
+            font-family: 'IBM Plex Mono', 'Courier New', monospace;
             font-size: 11px;
             cursor: pointer;
             writing-mode: vertical-rl;
@@ -411,6 +415,7 @@
             letter-spacing: 1px;
             transition: background 0.3s;
             pointer-events: auto;
+            margin-top: 30px;
         }
         
         #aboutToggle:hover {
@@ -434,7 +439,7 @@
         #aboutContent {
             padding: 60px 80px;
             color: white;
-            font-family: 'Georgia', serif;
+            font-family: 'IBM Plex Mono', 'Courier New', monospace;
             max-width: 800px;
             opacity: 0;
             transition: opacity 0.3s 0.2s;
@@ -521,7 +526,7 @@
     
     <!-- About Section -->
     <div id="aboutContainer">
-        <button id="aboutToggle">Daphne v.1</button>
+        <button id="aboutToggle">Daphne v.0</button>
         <div id="aboutPanel">
             <div id="aboutContent">
                 <h2>New Atlantis</h2>
