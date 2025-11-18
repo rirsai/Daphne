@@ -6,7 +6,7 @@
     <title>Daphne - Oramics Fluid Synth</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Platypi:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Spectral:ital,wght@0,200;0,300;0,400;1,200&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -481,21 +481,21 @@
         .content-title {
             grid-column: 2;
             font-family: 'IBM Plex Mono', 'Courier New', monospace;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 400;
             color: rgba(255, 255, 255, 0.8);
-            padding-top: 4px;
+            padding-top: 6px;
             line-height: 1.4;
         }
         
         .content-text {
             grid-column: 4 / 8;
-            font-family: 'Platypi', 'Georgia', serif;
-            font-size: 17pt;
+            font-family: 'Spectral', 'Georgia', serif;
+            font-size: 19pt;
             line-height: 1.5;
-            color: white;
-            margin-bottom: 50px;
-            font-weight: 400;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 70px;
+            font-weight: 200;
         }
         
         .content-text.italic {
@@ -527,14 +527,15 @@
             
             .content-title {
                 grid-column: 2;
-                font-size: 10px;
+                font-size: 12px;
+                padding-top: 4px;
             }
             
             .content-text {
                 grid-column: 3;
-                font-size: 14px;
+                font-size: 16px;
                 line-height: 1.4;
-                margin-bottom: 35px;
+                margin-bottom: 55px;
             }
         }
     </style>
@@ -5145,15 +5146,26 @@
             const aboutContainer = document.getElementById('aboutContainer');
             
             if (aboutToggle && aboutContainer) {
-                aboutToggle.addEventListener('click', () => {
+                const handleAboutToggle = () => {
                     aboutContainer.classList.toggle('open');
+                    
+                    // Close audio panel if about panel is opening
+                    if (aboutContainer.classList.contains('open')) {
+                        const audioPanel = document.getElementById('audioPanel');
+                        const colorPalette = document.getElementById('colorPalette');
+                        if (audioPanel) audioPanel.classList.remove('expanded');
+                        if (colorPalette) colorPalette.classList.remove('visible');
+                    }
+                    
                     console.log('ℹ️ About panel toggled');
-                });
+                };
+                
+                aboutToggle.addEventListener('click', handleAboutToggle);
                 
                 // Also support touch events for mobile
                 aboutToggle.addEventListener('touchstart', (e) => {
                     e.preventDefault();
-                    aboutContainer.classList.toggle('open');
+                    handleAboutToggle();
                 });
             }
             
@@ -5173,6 +5185,10 @@
                             this.textContent = 'Sound Off';
                             audioPanel.classList.add('expanded');
                             colorPalette.classList.add('visible');
+                            
+                            // Close about panel if audio panel is opening
+                            const aboutContainer = document.getElementById('aboutContainer');
+                            if (aboutContainer) aboutContainer.classList.remove('open');
                             
                             // iOS CRITICAL: Auto-select first color (Grey) on mobile
                             if ('ontouchstart' in window) {
