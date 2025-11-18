@@ -516,36 +516,49 @@
             
             #aboutPanel {
                 width: 85vw;
+                height: 100vh;
             }
             
             #aboutToggle {
                 width: 40px;
                 height: 100px;
                 font-size: 10px;
+                top: auto;
+                bottom: 30px;
             }
             
             #aboutContent {
-                padding: 40px 20px;
-                grid-template-columns: 0.5fr 1fr 2fr 0.5fr;
-                gap: 10px;
+                padding: 40px 0;
+                display: grid;
+                grid-template-columns: 1fr 4fr 1fr;
+                gap: 0;
+            }
+            
+            .content-section {
+                grid-column: 2;
+                display: block;
+                margin-bottom: 50px;
             }
             
             .content-title {
-                grid-column: 2;
                 font-size: 12px;
-                padding-top: 3px;
+                padding-top: 0;
+                margin-bottom: 15px;
             }
             
             .content-text {
-                grid-column: 3;
                 font-size: 14px;
                 line-height: 1.4;
-                margin-bottom: 65px;
+                margin-bottom: 0;
             }
             
-            /* Extra spacing after first paragraph on mobile */
-            .content-section:first-child .content-text {
-                margin-bottom: 85px;
+            /* Reduce spacing after first section on mobile */
+            .content-section:first-child {
+                margin-bottom: 20px !important;
+            }
+            
+            .content-section:nth-child(2) {
+                margin-top: -40px;
             }
         }
     </style>
