@@ -585,9 +585,23 @@
                 margin-top: -40px;
             }
         }
+
+        /* Hidden from view; first text in body so link-preview crawlers see this instead of about panel */
+        .meta-preview-text {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
     </style>
 </head>
 <body>
+    <div class="meta-preview-text" aria-hidden="true">Daphne - Oramics Fluid Synth. A gestural instrument where movement generates sound and texture—inspired by Daphne Oram's Oramics and sound experiments. Hand motion becomes both the score and the performance.</div>
     <canvas id="canvas"></canvas>
     <div id="controls">
         <div id="audioPanel">
@@ -600,26 +614,16 @@
     <div id="aboutContainer">
         <button id="aboutToggle">Daphne v.0</button>
         <div id="aboutPanel">
-            <div id="aboutContent">
-                <div class="content-section">
-                    <div class="content-title">New Atlantis<br>by Francis Bacon,<br>1626</div>
-                    <div class="content-text italic">We have also sound-houses, where we practice and demonstrate all sounds and their generation. We have harmonies, which you have not, of quarter-sounds and lesser slides of sounds. Divers instruments of music likewise to you unknown, some sweeter than any you have, together with bells and rings that are dainty and sweet. We represent small sounds as great and deep, likewise great sounds extenuate and sharp; we make divers tremblings and warblings of sounds, which in their original are entire. We represent and imitate all articulate sounds and letters, and the voices and notes of beasts and birds. We have certain helps which set to the ear do further the hearing greatly. We also have divers strange and artificial echoes, reflecting the voice many times, and as it were tossing it, and some that give back the voice louder than it came, some shriller and some deeper; yea, some rendering the voice differing in the letters or articulate sound from that they receive. We have also means to convey sounds in trunks and pipes, in strange lines and distances.</div>
-                </div>
-                
-                <div class="content-section">
-                    <div class="content-title">Daphne Oram<br>1925-2003</div>
-                    <div class="content-text">Daphne Oram (1925-2003) was a pioneer in the formation of electronic music, co-founding the BBC Radiophonic Workshop in 1958 before establishing her own studio in Kent to pursue a more radical vision. Her experimental practice centered on a conviction: "I want machines rather like computers to be an extension of the arm of the composer." She developed Oramics, a system where music was literally drawn—hand-painted waveforms and patterns on 35mm film strips, read photoelectrically to generate sound. Each parameter of composition—pitch, timbre, vibrato—could be defined and revised through marks that could be erased and redrawn. For Oram, this wasn't merely technical innovation but philosophical: the hand's presence in the sonic process mattered. She believed that "music should be a projection of a thought process in the mind of a human being," a continuous act where drawing and composing were inseparable.</div>
-                </div>
-                
-                <div class="content-section">
-                    <div class="content-title">Daphne v.0</div>
-                    <div class="content-text">Daphne v.0 is a tribute to Oram's ideas and explorations. A gestural instrument where movement generates sound and image—the hand's motion becomes both the score and the performance. Daphne v.0 is an exploration of real-time synthesis, examining how digital systems might extend the connections between hand, mind, vision, and sound. It's an experiment in creating ephemeral sonic soundscapes where gesture is composition, each movement a thought made audible.</div>
-                </div>
-            </div>
+            <div id="aboutContent"><!-- Content injected by JS so crawlers see meta tags, not this text --></div>
         </div>
     </div>
-    
+
     <script>
+        (function injectAboutContent() {
+            var html = '<div class="content-section"><div class="content-title">New Atlantis<br>by Francis Bacon,<br>1626</div><div class="content-text italic">We have also sound-houses, where we practice and demonstrate all sounds and their generation. We have harmonies, which you have not, of quarter-sounds and lesser slides of sounds. Divers instruments of music likewise to you unknown, some sweeter than any you have, together with bells and rings that are dainty and sweet. We represent small sounds as great and deep, likewise great sounds extenuate and sharp; we make divers tremblings and warblings of sounds, which in their original are entire. We represent and imitate all articulate sounds and letters, and the voices and notes of beasts and birds. We have certain helps which set to the ear do further the hearing greatly. We also have divers strange and artificial echoes, reflecting the voice many times, and as it were tossing it, and some that give back the voice louder than it came, some shriller and some deeper; yea, some rendering the voice differing in the letters or articulate sound from that they receive. We have also means to convey sounds in trunks and pipes, in strange lines and distances.</div></div><div class="content-section"><div class="content-title">Daphne Oram<br>1925-2003</div><div class="content-text">Daphne Oram (1925-2003) was a pioneer in the formation of electronic music, co-founding the BBC Radiophonic Workshop in 1958 before establishing her own studio in Kent to pursue a more radical vision. Her experimental practice centered on a conviction: "I want machines rather like computers to be an extension of the arm of the composer." She developed Oramics, a system where music was literally drawn—hand-painted waveforms and patterns on 35mm film strips, read photoelectrically to generate sound. Each parameter of composition—pitch, timbre, vibrato—could be defined and revised through marks that could be erased and redrawn. For Oram, this wasn\'t merely technical innovation but philosophical: the hand\'s presence in the sonic process mattered. She believed that "music should be a projection of a thought process in the mind of a human being," a continuous act where drawing and composing were inseparable.</div></div><div class="content-section"><div class="content-title">Daphne v.0</div><div class="content-text">Daphne v.0 is a tribute to Oram\'s ideas and explorations. A gestural instrument where movement generates sound and image—the hand\'s motion becomes both the score and the performance. Daphne v.0 is an exploration of real-time synthesis, examining how digital systems might extend the connections between hand, mind, vision, and sound. It\'s an experiment in creating ephemeral sonic soundscapes where gesture is composition, each movement a thought made audible.</div></div>';
+            var el = document.getElementById('aboutContent');
+            if (el) el.innerHTML = html;
+        })();
         const canvas = document.getElementById('canvas');
         const gl = canvas.getContext('webgl', {
             alpha: false,
