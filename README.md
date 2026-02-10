@@ -218,11 +218,25 @@ quantizePitch(mouseYPos)
 - Harmonic Minor: [0, 2, 3, 5, 7, 8, 11] - 7 notes (exotic)
 - Chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] - All 12 notes
 
+## Link preview (social sharing)
+
+When you share **https://rirsai.github.io/Daphne/** on social media, messaging apps, or Slack, the preview is controlled by meta tags in `index.html`.
+
+**Preview image:**
+- The preview uses **`daphne.preview.png`** in the project root (same folder as `index.html`).
+- **Recommended size:** 1200×630 pixels (works well on Facebook, Twitter/X, LinkedIn, Discord, iMessage).
+- On GitHub Pages it is served at `https://rirsai.github.io/Daphne/daphne.preview.png`.
+
+**Customizing the preview text:**
+- Edit the `<meta property="og:title">`, `<meta property="og:description">`, and `<meta name="description">` tags in the `<head>` of `index.html`.
+- Use the same title/description for `twitter:title` and `twitter:description` so all platforms show the same text.
+
 ## File Structure
 
 ```
 Daphne/
 ├── index.html          # Single-file application (all code ~4100 lines)
+├── daphne.preview.png  # Preview image for link sharing
 ├── README.md           # This file
 └── .git/               # Git repository
 ```
